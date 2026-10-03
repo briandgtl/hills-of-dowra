@@ -16,6 +16,14 @@ Then open `http://localhost:8000/Hills%20of%20Dowra.html`.
 
 It uses WebGPU where the browser has it and falls back to WebGL 2 otherwise. Add `?webgl` to the URL to force the fallback.
 
+## Play offline
+
+```bash
+python3 tools/make-offline.py
+```
+
+This writes `Hills of Dowra (offline).html`: the same game as one file of about 6 MB, with three.js, the other libraries and the fonts embedded. Open it in the browser; it needs no server and no connection. The first build downloads the libraries from jsDelivr and Google Fonts and keeps them in `tools/cache/`, so later builds are offline too. Rebuild it after changing the game. The generated file isn't committed.
+
 ## Controls
 
 | | |

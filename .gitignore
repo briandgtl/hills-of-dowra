@@ -9,3 +9,7 @@ Hills of Dowra (r128 original).html
 
 # the iOS wrapper keeps its own git repository
 DowraiOS/
+
+# the generated single-file offline build and its download cache (python3 tools/make-offline.py)
+Hills of Dowra (offline).html
+tools/cache/
