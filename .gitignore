@@ -1,0 +1,11 @@
+.DS_Store
+
+# local test copy of the game
+_claude-test.html
+
+# dated safety-net snapshots (git history replaces them)
+Hills of Dowra Pre *.html
+Hills of Dowra (r128 original).html
+
+# the iOS wrapper keeps its own git repository
+DowraiOS/
