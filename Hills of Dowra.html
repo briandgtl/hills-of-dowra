@@ -1550,7 +1550,7 @@ const setSheepGeo=(gN,gF)=>{for(const[g,a]of[[gN,SHA[0]],[gF,SHA[1]],[SEG,SHA[0]
 // sheep records come from a fixed pool so gameplay never allocates
 POOL=Array.from({length:MX},(_,i)=>({i,bk:false,x:0,z:0,y:0,ry:0,st:0,t:0,tx:0,tz:0,v:0,ph:0,pp:0,cm:0,rs:0,b:0,hx:0,hz:0,hy:0,gz:0,hop:0,h0x:0,h0z:0,h1x:0,h1z:0,jy:0,bl:0,ti:-1,lt:0,sx:0,sz:0,stk:0})),
 sput=(s,x,z,st,b)=>{const y=Hm(x,z);s.x=s.tx=s.hx=x;s.z=s.tz=s.hz=z;s.y=y;s.hy=y+.6;s.st=st;s.b=b;s.t=s.v=s.av=s.blk=s.pp=s.cm=s.rs=s.hop=s.jy=s.stk=0},
-// black sheep: 3% of the sheep that turn up in the hills, always tucked into a bush; each counts as 3 sheep for wool
+// black sheep: 3% of the sheep that turn up in the hills, always tucked into a bush; each is worth 6 wool when penned (WBLK) and counts as 3 sheep for the dawn wool
 tint=s=>{SIM.setColorAt(s.i,C1.setHex(s.bk?0x5b5550:[0xffffff,0xf3eee2,0xfaf3e6][R()*3|0]));SIM.instanceColor.needsUpdate=true},
 wild=(s,x,z,hid)=>{s.bk=R()<.03;hid=hid||s.bk;sput(s,x,z,hid?0:1,hid?1:0);tint(s)},
 // no st: a new sheep in the hills (may roll black); with st: placed as given, e.g. penned sheep restored from a save
@@ -1612,7 +1612,7 @@ offView=(x,z)=>{T3.set(x,Hm(x,z)+1,z).project(cam);return T3.z>1||abs(T3.x)>1.15
 // keep ~26 sheep roaming near the shepherd, recycling ones that wandered far away. Arrivals land 75-120m out and never
 // on screen: a spot in view is pushed further along its bearing until it clears the frame (or skipped), and sheep are
 // only recycled once they're out of view, so none pop in or vanish in front of the player
-pop=()=>{const p=P.position;let near=0;for(const s of S){if(s.st>1)continue;hypot(s.x-p.x,s.z-p.z)<120&&near++}for(let i=near,j=0;i<26;i++){const a=R()*TAU;let r=75+R()*45,x=p.x+cos(a)*r,z=p.z+sin(a)*r;while(!offView(x,z)&&r<120){r=min(120,r+6);x=p.x+cos(a)*r;z=p.z+sin(a)*r}if(!offView(x,z)||H(x,z)<WL+.8||hypot(x,z)<50||nearFarm(x,z))continue;const hid=R()<.5;let s=null;for(;j<S.length;j++){const q=S[j];if(q.st<2&&hypot(q.x-p.x,q.z-p.z)>230&&offView(q.x,q.z)){s=q;j++;break}}if(s)wild(s,x,z,hid);else spawn(x,z,hid)}};
+pop=()=>{const p=P.position;let near=0;for(const s of S){if(s.st>1)continue;hypot(s.x-p.x,s.z-p.z)<120&&near++}for(let i=near,j=0;i<26;i++){const a=R()*TAU;let r=75+R()*45,x=p.x+cos(a)*r,z=p.z+sin(a)*r;while(!offView(x,z)&&r<120){r=min(120,r+6);x=p.x+cos(a)*r;z=p.z+sin(a)*r}if(!offView(x,z)||H(x,z)<WL+.8||hypot(x,z)<50||nearFarm(x,z))continue;const hid=R()<.425;let s=null;for(;j<S.length;j++){const q=S[j];if(q.st<2&&hypot(q.x-p.x,q.z-p.z)>230&&offView(q.x,q.z)){s=q;j++;break}}if(s)wild(s,x,z,hid);else spawn(x,z,hid)}};
 
 // ---- daytime music: a procedural Celtic folk trio, all synthesised, played back like a 32-bit console ----
 // Plucked harp (Karplus-Strong, rendered once per note), a breathy low whistle with cuts and delayed vibrato, and a soft bodhran,
@@ -1718,13 +1718,13 @@ wxU=dt=>{if(run&&!pz&&(wxN-=dt)<0){const o=WXN[wxI];wxGo(o[R()*o.length|0])}cons
  RNM.visible=SPM.visible=RFM.visible=wx.r>.01;FRM.visible=U.pud.value>0;if(RNM.visible){U.rt.value=(U.rt.value+dt)%1000;U.rwv.value.copy(U.wd.value).multiplyScalar(2+3*wx.w);U.rc.value.set(LK.x+CO.x*8,LK.y+12,LK.z+CO.z*8)}},
 wxM=()=>wx.m<0?min(0,wx.m+6*L.shed):wx.m;let wxI=1,wxN=150,wxD=1e9;
 let dy=1,dT=0,NW=0,ghT=0,ghB=0,nph=0,nT=0,nL=10,hw=0,fdn=0,ntl=null,NI=null,RO=null,DSK=0,LT=0;
-let W=0,hp=65,cnt=0,hcn=0,pwu=0,fol=0,run=0,pz=0,et=0,wn=0,dq=0,dqt=0,svT=15,tm=0,escCarry=0;
+let W=0,hp=65,cnt=0,hcn=0,pwu=0,fol=0,run=0,pz=0,et=0,wn=0,dq=0,dqw=0,dqt=0,svT=15,tm=0,escCarry=0;
 // escape rules: by day none while happiness >= 20%, otherwise exactly 5% of the penned flock per breakout;
 // every night a random 3%-43% of the penned flock slips out (1%-21% once the sheepdog keeps watch)
-// wool: WCAP for every sheep brought into the pen, as it arrives; then at dawn WPS per sheep still in the pen after the night (a
+// wool: WCAP (3) for every sheep brought into the pen, WBLK (6) for a black one, as it arrives; then at dawn WPS per sheep still in the pen after the night (a
 // black sheep counts as 3). And a gathering bonus of 5 for every full 10 sheep brought home that day (GBON), which he tallies as he
 // counts sheep going to sleep (dream) and is paid into the barn as the count ends
-const WCAP=1,GBON=n=>Math.floor(n/10)*5,WPS=1,DAY_ESC_HP=20,DAY_ESC=.05,NIGHT_ESC_MIN=.03,NIGHT_ESC_MAX=.43,DOG_ESC_MIN=.01,DOG_ESC_MAX=.21;
+const WCAP=3,WBLK=6,GBON=n=>Math.floor(n/10)*5,WPS=1,DAY_ESC_HP=20,DAY_ESC=.05,NIGHT_ESC_MIN=.03,NIGHT_ESC_MAX=.43,DOG_ESC_MIN=.01,DOG_ESC_MAX=.21;
 const L={crook:0,pen:0,trough:0,hay:0,shed:0,garden:0,boots:0,dog:0},CRR=[5,6,7,8],penR=()=>9+L.pen*1.6,cap=()=>30+10*L.pen,comf=()=>15*L.trough+15*L.hay+20*L.shed+10*L.garden+(L.dog?5:0);
 const UP=[['crook','crook','Longer Crook',l=>`Your crook sweeps in sheep within ${CRR[l]}m.`+(l<3?` Lengthen it to reach ${CRR[l+1]}m.`:''),[25,35,45]],
 ['pen','fence','Bigger Pen',()=>`Room for ${cap()} sheep before they feel cramped.`,[15,34,68,120,195,300,450,600]],
@@ -1789,7 +1789,7 @@ fndU=dt=>{const p=P.position,sp=(fndT-=dt)<0;sp&&(fndT=.3);let nd=30,nf=null;for
 let FARM=null;try{FARM=localStorage.getItem(SK+'-name')}catch(e){}const escH=t=>t.replace(/[&<>"']/g,c=>`&#${c.charCodeAt(0)};`);
 
 // ---- the flock ----
-const deposit=(s,pr)=>{s.st=3;s.t=0;s.b=0;s.cm=0;dq++;dqt=.8;W+=WCAP;ghT++;emit(s.x,s.y+2.2,s.z,12,0xffd76a,3,4,1,4);const r=hypot(s.x,s.z)||1;if(r>pr-1.3){const ri=max(1.5,pr-2.4-R()*min(3,pr*.3));s.hop=1e-3;s.h0x=s.x;s.h0z=s.z;s.h1x=s.x/r*ri;s.h1z=s.z/r*ri}};
+const deposit=(s,pr)=>{s.st=3;s.t=0;s.b=0;s.cm=0;dq++;dqt=.8;const wc=s.bk?WBLK:WCAP;W+=wc;dqw+=wc;ghT++;emit(s.x,s.y+2.2,s.z,12,0xffd76a,3,4,1,4);const r=hypot(s.x,s.z)||1;if(r>pr-1.3){const ri=max(1.5,pr-2.4-R()*min(3,pr*.3));s.hop=1e-3;s.h0x=s.x;s.h0z=s.z;s.h1x=s.x/r*ri;s.h1z=s.z/r*ri}};
 // ---- the shepherd's trail: a point every metre he walks. A follower that a wall has cut off from him goes to the newest bit of it
 // in clear sight (where he came through the gap) and walks it on until he is in sight himself ----
 const TLN=256,TLX=new Float32Array(TLN),TLZ=new Float32Array(TLN),LOR=new THREE.Ray(),LOB=new THREE.Box3();let tlN=0,tlF=0;
@@ -2325,7 +2325,7 @@ function loop(){if(dead)return;const now=performance.now();if(fcap&&now-last<10.
  // the cottage menu keeps the world live (lv): wind, weather, the flock, the dog and the shepherd, idling as he can't walk, all carry
  // on behind it. Only the game waits, as in the other menus: the day clock, contentment, new strays, the weather's turn and saving
  const lv=!pz||ov==3;
- try{gpPoll(dt);if(nph==2)ngt(dt);else{if(lv){tm+=dt;U.t.value=tm;wxU(dt);if(run){mvP(dt);fndU(dt);if(!pz){hap(dt);if((ppT-=dt)<0){ppT=2;pop()}if(dqt>0&&(dqt-=dt)<=0){toast(`<b>${dq}</b> sheep home safe! <b>+${dq*WCAP}</b> wool`,'g','cottage');sfx.coin();dq=0;sv()}if((svT-=dt)<0){svT=15;sv()}dayU(dt)}cbU()}shp(dt);wv(dt);stream()}
+ try{gpPoll(dt);if(nph==2)ngt(dt);else{if(lv){tm+=dt;U.t.value=tm;wxU(dt);if(run){mvP(dt);fndU(dt);if(!pz){hap(dt);if((ppT-=dt)<0){ppT=2;pop()}if(dqt>0&&(dqt-=dt)<=0){toast(`<b>${dq}</b> sheep home safe! <b>+${dqw}</b> wool`,'g','cottage');sfx.coin();dq=dqw=0;sv()}if((svT-=dt)<0){svT=15;sv()}dayU(dt)}cbU()}shp(dt);wv(dt);stream()}
   U.dt.value=lv?dt:0;camU(dt);vwU();cull();if((ht-=dt)<0){ht=.2;if(run){hud();amb(.2)}else MU&&MU.tick(mof?0:1)}renderer.compute(GL[0].cs);renderer.compute(GL[1].cs);GSW.a.value.w=0;CMP.render()}}
  catch(e){dead=1;console.error(e);fail('The game stopped unexpectedly','Your flock is saved as you play, so reloading picks up close to where you left off.')}}
 $('go').onclick=()=>{if(!FARM){FARM=$('fn').value.trim().replace(/\s+/g,' ')||'Dowra Farm';try{localStorage.setItem(SK+'-name',FARM)}catch(e){}}$('fnm').textContent=FARM;AC||aud();if(sd){W=sd.W||0;Object.assign(L,sd.L);delete L.horn;if('paint'in L){czSaved||(CZ.door=L.paint%6,CZH.door|=1<<CZ.door,czApply(),czSave());delete L.paint}hp=sd.hp??65;dy=sd.dy||1;ghT=sd.gh|0;for(let i=0;i<(sd.cnt|0);i++){const a=R()*TAU,r=sqrt(R())*(penR()-2);spawn(cos(a)*r,sin(a)*r,0,3,i<(sd.bk|0))}cnt=hcn=S.filter(s=>s.st==3).length}$('st').hidden=true;$('hud').hidden=$('tb').hidden=$('hc').hidden=$('cb').hidden=false;run=1;wxN=wxDur(wxI);apply();hud();if(sd)toast(`Welcome back to <b>${escH(FARM)}</b>. Your flock missed you.`,'g','shamrock');else{toast(`Your flock slipped the gate! Swing your crook ${gpOn?`with ${gpG('a')}`:mob?'(the round button)':'with <b>Space</b>'} to gather sheep, then walk them home to the pen.`,'','sheep');setTimeout(()=>toast('Rustling bushes hide sheep. Walk right up to one to flush it out.','','leaf'),5500);setTimeout(()=>toast('A day lasts 12 minutes. Get the flock home before the sun goes down.','','dawn'),11000)}};
