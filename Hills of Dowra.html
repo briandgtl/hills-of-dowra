@@ -1614,14 +1614,15 @@ offView=(x,z)=>{T3.set(x,Hm(x,z)+1,z).project(cam);return T3.z>1||abs(T3.x)>1.15
 // only recycled once they're out of view, so none pop in or vanish in front of the player
 pop=()=>{const p=P.position;let near=0;for(const s of S){if(s.st>1)continue;hypot(s.x-p.x,s.z-p.z)<120&&near++}for(let i=near,j=0;i<26;i++){const a=R()*TAU;let r=75+R()*45,x=p.x+cos(a)*r,z=p.z+sin(a)*r;while(!offView(x,z)&&r<120){r=min(120,r+6);x=p.x+cos(a)*r;z=p.z+sin(a)*r}if(!offView(x,z)||H(x,z)<WL+.8||hypot(x,z)<50||nearFarm(x,z))continue;const hid=R()<.425;let s=null;for(;j<S.length;j++){const q=S[j];if(q.st<2&&hypot(q.x-p.x,q.z-p.z)>230&&offView(q.x,q.z)){s=q;j++;break}}if(s)wild(s,x,z,hid);else spawn(x,z,hid)}};
 
-// ---- daytime music: a procedural Celtic folk trio, all synthesised, played back like a 32-bit console ----
-// Plucked harp (Karplus-Strong, rendered once per note), a breathy low whistle with cuts and delayed vibrato, and a soft bodhran,
-// in a relaxed 6/8 jig. Every tune is new: AABB with 8-bar parts over D major / D mixolydian changes, the melody landing on chord
+// ---- daytime music: a procedural Celtic folk quartet, all synthesised, played back like a 32-bit console ----
+// A wooden flute and a breathy low whistle (with cuts and delayed vibrato) play the tune together: the flute alone for the closing
+// eight bars, an octave up as well on the repeat of A and through B, and swelling chord tones under the whole tune. A thin plucked
+// harp (Karplus-Strong, rendered once per note) keeps the beat, with a soft bodhran, in a relaxed 6/8 jig. Every tune is new: AABB with 8-bar parts over D major / D mixolydian changes, the melody landing on chord
 // tones on the strong beats and stepping through the scale between them. The PlayStation treatment: harp notes are 22 kHz samples
 // pitched by playback rate, as its sound chip played instruments; the band is quantised to 11 bits for the grit of its compressed
 // samples; and it all plays into a long, dark hall reverb that, like the chip's, only updates at 22 kHz
 const mkMusic=(A,out)=>{const sr=A.sampleRate,SR=22050,rnd=Math.random,mix=A.createGain(),crush=A.createWaveShaper(),bus=A.createGain(),JB=A.createGain(),tone=A.createBiquadFilter(),rv=A.createConvolver(),wet=A.createGain(),
- pan=p=>{if(!A.createStereoPanner)return mix;const s=A.createStereoPanner();s.pan.value=p;s.connect(mix);return s},HP=pan(-.28),WP=pan(.18),
+ pan=p=>{if(!A.createStereoPanner)return mix;const s=A.createStereoPanner();s.pan.value=p;s.connect(mix);return s},HP=pan(-.28),WP=pan(.18),FP=pan(-.1),
  NZ=A.createBuffer(1,sr*2,sr),mf=m=>440*2**((m-69)/12),KS={};
  {const d=NZ.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=rnd()*2-1}
  // hall: 35 ms pre-delay, 3.4 s tail darkening as it decays, each noise value held for the length of a 22 kHz sample
@@ -1643,6 +1644,15 @@ const mkMusic=(A,out)=>{const sr=A.sampleRate,SR=22050,rnd=Math.random,mix=A.cre
   o.connect(g);o2.connect(g2).connect(g);g.connect(lp).connect(W);
   n.buffer=NZ;bf.type='bandpass';bf.frequency.value=f*2;bf.Q.value=1.1;ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(v*.3,t+.03);ng.gain.linearRampToValueAtTime(v*.08,t+.14);ng.gain.linearRampToValueAtTime(0,e+.05);n.connect(bf).connect(ng).connect(W);
   for(const x of[o,o2,vb]){x.start(t);x.stop(e+.08)}n.start(t,rnd());n.stop(e+.08)},
+ // fl: a wooden flute: mostly fundamental with a little second harmonic, a steady breath of noise (with a chiff on a tongued start)
+ // and a late shallow vibrato. soft swells in and out slowly instead, for the held chord tones under the tune
+ fl=(m,t,d,v,cut,soft,W=FP)=>{const f=mf(m),o=A.createOscillator(),o2=A.createOscillator(),g=A.createGain(),g2=A.createGain(),lp=A.createBiquadFilter(),vb=A.createOscillator(),vg=A.createGain(),n=A.createBufferSource(),bf=A.createBiquadFilter(),ng=A.createGain(),e=t+d,at=soft?min(.3,d*.3):.06,rl=soft?min(.35,d*.3):.09;
+  for(const[x,k]of[[o,1],[o2,2]]){x.frequency.setValueAtTime(cut?f*k*1.189:f*k,t);cut&&x.frequency.setValueAtTime(f*k,t+.04);vg.connect(x.frequency)}
+  g2.gain.value=.2;vb.frequency.value=5.4;vg.gain.setValueAtTime(0,t);vg.gain.setValueAtTime(0,t+min(.3,d*.4));vg.gain.linearRampToValueAtTime(f*.004,t+min(.9,d*.9));vb.connect(vg);
+  lp.type='lowpass';lp.frequency.value=min(f*5,6000);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+at);g.gain.setValueAtTime(v,max(t+at,e-rl));g.gain.linearRampToValueAtTime(0,e+.05);
+  o.connect(g);o2.connect(g2).connect(g);g.connect(lp).connect(W);
+  n.buffer=NZ;n.loop=true;bf.type='bandpass';bf.frequency.value=f*2.2;bf.Q.value=.7;ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(v*(soft?.14:.34),t+(soft?at:.025));ng.gain.linearRampToValueAtTime(v*.14,t+max(.12,at));ng.gain.setValueAtTime(v*.14,max(t+.13,e-rl));ng.gain.linearRampToValueAtTime(0,e+.05);n.connect(bf).connect(ng).connect(W);
+  for(const x of[o,o2,vb]){x.start(t);x.stop(e+.1)}n.start(t,rnd());n.stop(e+.1)},
  bd=(t,v)=>{const o=A.createOscillator(),g=A.createGain(),n=A.createBufferSource(),bf=A.createBiquadFilter(),ng=A.createGain();o.frequency.setValueAtTime(115,t);o.frequency.exponentialRampToValueAtTime(52,t+.18);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.001,t+.38);o.connect(g).connect(mix);o.start(t);o.stop(t+.42);
   n.buffer=NZ;bf.type='lowpass';bf.frequency.value=1100;ng.gain.setValueAtTime(v*.45,t);ng.gain.exponentialRampToValueAtTime(.001,t+.07);n.connect(bf).connect(ng).connect(mix);n.start(t,rnd());n.stop(t+.09)},
@@ -1660,15 +1670,22 @@ const mkMusic=(A,out)=>{const sr=A.sampleRate,SR=22050,rnd=Math.random,mix=A.cre
    else{const k=rnd()<.8?1:2,dr=cur>78?-1:cur<66?1:rnd()<.5?-1:1;cur=S[cl(i+dr*k,0,S.length-1)]}
    o.push([bi*6+e,d,cur,d>=2&&rnd()<.35]);e+=d})});return o},
  sh=(p,k)=>p.map(n=>[n[0]+k*6,n[1],n[2],n[3]]),
- tune=()=>{const pa=PA[rnd()*3|0],pb=PB[rnd()*3|0],a1=phr(pa.slice(0,2),rnd()<.5?66:69),a2=phr(pa.slice(2,4),a1.at(-1)[2],rnd()<.5?9:4),a3=phr(pa.slice(6,8),a1.at(-1)[2],2),
-  b1=phr(pb.slice(0,2),rnd()<.5?74:76),b2=phr(pb.slice(2,4),b1.at(-1)[2],rnd()<.5?9:4),b3=phr(pb.slice(6,8),b1.at(-1)[2],2);
-  return[{ch:pa,mel:[...a1,...sh(a2,2),...sh(a1,4),...sh(a3,6)],dr:0},{ch:pb,mel:[...b1,...sh(b2,2),...sh(b1,4),...sh(b3,6)],dr:1}]};
+ // an 8-bar tune over chords cs: a phrase from s0 or s1, an answer to it, the first phrase again, then a closing phrase on D
+ mp=(cs,s0,s1)=>{const a=phr(cs.slice(0,2),rnd()<.5?s0:s1),b=phr(cs.slice(2,4),a.at(-1)[2],rnd()<.5?9:4),d=phr(cs.slice(6,8),a.at(-1)[2],2);return[...a,...sh(b,2),...sh(a,4),...sh(d,6)]},
+ tune=()=>{const pa=PA[rnd()*3|0],pb=PB[rnd()*3|0];return[{ch:pa,mel:mp(pa,66,69),dr:0},{ch:pb,mel:mp(pb,74,76),dr:1}]},
+ // the flute's held chord tones: the chord's octave and tenth, moved into the flute's easy range
+ nm=m=>m<62?nm(m+12):m>73?nm(m-12):m;
  let Q=[],bi=0,T=0,lv=0,off=0,E=.29,dk=0;
- // one tune per cycle: a two-bar harp lead-in, A A B B (bodhran joins on the repeat of A and through B), then eight bars of harp alone
- const next=()=>{const[a,b]=tune();E=60/((66+rnd()*8)*3);Q.push({ch:['D','A'],mel:[],dr:0},a,{...a,dr:.5},b,b,{ch:PA[rnd()*3|0],mel:[],dr:0})},
+ // one tune per cycle: a two-bar lead-in on the flute's chord tones, A A B B (bodhran joins on the repeat of A and through B), then
+ // eight bars of flute alone (solo)
+ const solo=()=>{const pa=PA[rnd()*3|0];return{ch:pa,mel:mp(pa,66,69),dr:0,solo:1}},
+ next=()=>{const[a,b]=tune();E=60/((66+rnd()*8)*3);Q.push({ch:['D','A'],mel:[],dr:0},a,{...a,dr:.5},b,b,solo())},
  bar=t=>{if(!Q.length)next();const p=Q[0],b=bi,c=CH[p.ch[b]];
-  [0,1,2,3,2,1].forEach((k,j)=>pl(c[k]+(j==3&&rnd()<.3?12:0),t+j*E+(rnd()-.5)*.012,(j?j==3?.17:.12:.26)*(.85+rnd()*.3)));
-  for(const n of p.mel){const o=n[0]-b*6;o>=0&&o<6&&wh(n[2],t+o*E+(rnd()-.5)*.01,n[1]*E*.94,o%3?.058:.07,n[3])}
+  // the harp keeps to the beat (root, then the tenth) with an odd pick between, at .7 of its old level
+  [0,1,2,3,2,1].forEach((k,j)=>(j%3==0||rnd()<.25)&&pl(c[k]+(j==3&&rnd()<.3?12:0),t+j*E+(rnd()-.5)*.012,.7*(j?j==3?.17:.12:.26)*(.85+rnd()*.3)));
+  for(const k of[2,3])fl(nm(c[k]),t-.08,6*E+.16,p.mel.length?p.solo?.02:.03:.045,0,1);
+  for(const n of p.mel){const o=n[0]-b*6;if(o<0||o>=6)continue;const x=t+o*E+(rnd()-.5)*.01,d=n[1]*E*.94,s=o%3?1:1.2;
+   p.solo||wh(n[2],x,d,.045*s,n[3]);fl(n[2],x+.01,d,.055*s,n[3]);p.dr&&n[2]<=74&&fl(n[2]+12,x+.02,d,.018*s,n[3])}
   if(p.dr){bd(t,.05*p.dr);bd(t+3*E,.032*p.dr);rnd()<.5&&bd(t+5*E,.016*p.dr)}
   if(++bi>=p.ch.length){bi=0;Q.shift()}};
  // level 0..1 fades the band in or out; once silent for a few seconds it stops and restarts with a fresh tune next time
