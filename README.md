@@ -2,6 +2,8 @@
 
 A sheep-herding game set in the Cavan hills of Ireland. Your flock has slipped the gate and scattered across the hills: bring them home before the sun goes down, and keep them happy once they're back.
 
+**Play it:** https://briandgtl.github.io/hills-of-dowra/ (needs a connection; see below for an offline file)
+
 The whole game is one file, `Hills of Dowra.html`. The terrain, trees, walls, ruins, graveyards, sheep, shepherd and weather are all generated in code.
 
 ## Run it
