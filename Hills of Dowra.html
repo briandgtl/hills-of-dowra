@@ -207,10 +207,10 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
    ribbon saying it's new. On a short screen (a phone on its side) the medallion moves to the left of the words */
 #alv{position:relative;width:148px;height:148px;margin:-4px auto 2px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#fff6d3,#efd48a 62%,#c99a3c);box-shadow:inset 0 0 0 2px #21160a,inset 0 0 0 5px var(--gold2),inset 0 0 0 6.5px #21160a,0 8px 18px rgba(40,22,4,.4)}#alv[hidden]{display:none}
 #alv::before{content:'';position:absolute;inset:-30px;z-index:-1;border-radius:50%;background:repeating-conic-gradient(rgba(214,166,64,.5) 0 6deg,transparent 6deg 18deg);-webkit-mask-image:radial-gradient(closest-side,#000 52%,transparent);mask-image:radial-gradient(closest-side,#000 52%,transparent);animation:sp 48s linear infinite}
-#alv svg{width:112px;height:112px;overflow:visible;filter:drop-shadow(0 3px 2px rgba(60,35,8,.35));animation:fvp .5s cubic-bezier(.2,1.4,.4,1) both}
+#alv svg,#alv .fv3{grid-area:1/1;width:112px;height:112px;animation:fvp .5s cubic-bezier(.2,1.4,.4,1) both}#alv .fv3{position:static;transition:none}#alv .px{image-rendering:pixelated}#alv svg{overflow:visible;filter:drop-shadow(0 3px 2px rgba(60,35,8,.35))}
 @keyframes fvp{from{scale:.6;opacity:0}}
 .fvn{position:absolute;right:-12px;top:6px;rotate:11deg;padding:2px 11px 3px;border-radius:4px;font:400 13px Metamorphous,Georgia,serif;font-style:normal;letter-spacing:.04em;color:#f8edc9;background:linear-gradient(var(--ox2),var(--ox));box-shadow:0 0 0 1.5px #3a1a10,0 3px 6px rgba(40,10,4,.4)}
-@media (max-height:480px){#al.fi{width:min(540px,100%);grid-template-columns:auto 1fr;align-items:center;column-gap:20px;text-align:left}#al.fi #alv{grid-row:1/4;width:116px;height:116px;margin:0 0 0 8px}#al.fi #alv svg{width:88px;height:88px}#al.fi .ab{grid-column:2}#al.fi .ab button{padding-inline:12px}}
+@media (max-height:480px){#al.fi{width:min(540px,100%);grid-template-columns:auto 1fr;align-items:center;column-gap:20px;text-align:left}#al.fi #alv{grid-row:1/4;width:116px;height:116px;margin:0 0 0 8px}#al.fi #alv svg,#al.fi #alv .fv3{width:88px;height:88px}#al.fi .ab{grid-column:2}#al.fi .ab button{padding-inline:12px}}
 #jb{position:fixed;width:116px;height:116px;margin:-58px 0 0 -58px;border-radius:50%;background:radial-gradient(closest-side,rgba(40,30,16,.18) 70%,rgba(214,166,64,.55) 72%,rgba(33,22,10,.55) 76%,transparent 78%);display:none;pointer-events:none}
 #jb i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:var(--stonetex),radial-gradient(circle at 34% 28%,#bdb8ab,#7b776d 60%,#45413a);box-shadow:inset 0 0 0 2px #21160a,inset 0 0 0 3.5px var(--gold2),0 4px 10px rgba(0,0,0,.35)}
 i.wt{font:400 12px Metamorphous,Georgia,serif;color:var(--moss);margin-left:4px}
@@ -1795,7 +1795,7 @@ SH={top:0,cap:0,polo:0,trs:0,boots:0,hair:0,crook:0},SHH={top:1,cap:1,polo:1,trs
 shC=k=>SHO.find(o=>o[0]==k)[2][SH[k]][1],shSave=()=>{try{localStorage.setItem(SHK,JSON.stringify({sel:SH,own:SHH,found:[...SHF]}))}catch(e){}};
 try{const o=JSON.parse(localStorage.getItem(SHK));if(o){for(const[k,,O]of SHO){SHH[k]|=(o.own?.[k]|0)&(1<<O.length)-1;const v=o.sel?.[k];Number.isInteger(v)&&v>=0&&v<O.length&&SHH[k]>>v&1&&(SH[k]=v)}(o.found||[]).forEach(k=>SHF.add(k))}}catch(e){}
 // dress him: dyes into the shader, the crook's wood, and the Aran jumper's body (sculpted the first time it's worn) in place of the coat's
-let COG=null,ARG=null,fndT=0,fndTip=0,fpQ=[],fpT=0;const shApply=()=>{const ar=SH.top==6;ar||SHU.top.value.setHex(shC('top'));for(const k of['cap','polo','trs','boots','hair'])SHU[k].value.setHex(shC(k));staff.material.color.setHex(shC('crook'));
+let COG=null,ARG=null,fndT=0,fndTip=0,fpQ=[],fpT=0,fvR=null,fvO=null,fvK=0,fvC=null;const shApply=()=>{const ar=SH.top==6;ar||SHU.top.value.setHex(shC('top'));for(const k of['cap','polo','trs','boots','hair'])SHU[k].value.setHex(shC(k));staff.material.color.setHex(shC('crook'));
  COG&&(PLM.geometry=ar?ARG||(ARG=manG(0,1)):COG)},
 // how many of the shepherd's looks are found (the first of each kind is his own, and hair is his to choose), and how many there are
 shTally=()=>{const fo=SHO.filter(o=>o[0]!='hair');return[fo.reduce((a,[k,,O])=>a+O.filter((_,i)=>i&&SHH[k]>>i&1).length,0),fo.reduce((a,[,,O])=>a+O.length-1,0)]},
@@ -1821,6 +1821,107 @@ shArt=(k,n,c)=>{const f=czHx(c),pt=/tartan/i.test(n)?'ftt':/tweed/i.test(n)?'ftw
   boots:`<g transform="translate(8 4) scale(.8)">${boot(1)}</g><g transform="translate(26 14) scale(.8)">${boot(0)}</g>`,
   crook:P(CK,'fill="none" stroke="#21160a" stroke-width="12"')+P(CK,`fill="none" stroke="${f}" stroke-width="8"`)+P(CK,'fill="none" stroke="#000" stroke-opacity=".18" stroke-width="3" transform="translate(2 2)"')+P(CK,'fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="2.4" transform="translate(-1.6 -1.6)"')+P('M29 109L33 120','fill="none" stroke="#21160a" stroke-width="7"')}[k]||`<circle cx="60" cy="60" r="36" fill="${f}"/>`;
  return`<svg viewBox="0 0 120 120" aria-hidden="true" focusable="false"><defs>${FVD}</defs><g stroke="#21160a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">${art}</g><g fill="#fffbe6" stroke="#94661b" stroke-width="1" stroke-linejoin="round">${st(14,26,9)}${st(108,16,7)}${st(104,104,8)}</g></svg><i class="fvn">New</i>`},
+// the find's 3D model (fvModel), turned on the popup's medallion by its own small renderer (fv3). Each look is a hollow garment, like a
+// ghost mannequin's, built from lathes, tubes and ellipsoids with its fabric's texture (tartan and tweed paint, cords, ribs and
+// Aran cables bump), lit by a warm key, a cool fill and a rim; the wellies are glossy rubber and the crook a tube of grained wood.
+// shArt's drawing stays up while that starts, and stays for good where there's no GPU for it
+fvModel=(k,n,c)=>{const T=THREE,G=new T.Group(),col=new T.Color(c),jm=/^Aran/.test(n),tart=/tartan/i.test(n),twd=/tweed/i.test(n),cord=/cords/i.test(n),wax=/waxed/i.test(n),H=PI/2,
+ hx=v=>'#'+v.toString(16).padStart(6,'0'),
+ tex=(w,h,f,rx=1,ry=1,s)=>{const cv=document.createElement('canvas');cv.width=w;cv.height=h;f(cv.getContext('2d'),w,h);const t=new T.CanvasTexture(cv);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=4;if(s)t.colorSpace=T.SRGBColorSpace;return t},
+ nz=(rx,ry)=>tex(64,64,(x,w,h)=>{for(let i=0;i<w*h;i++){const v=R()*255|0;x.fillStyle=`rgb(${v},${v},${v})`;x.fillRect(i%w,i/w|0,1,1)}},rx,ry),
+ rb=(rx,ry)=>tex(32,32,(x,w,h)=>{x.fillStyle='#fff';x.fillRect(0,0,w,h);x.fillStyle='#000';for(let i=0;i<w;i+=4)x.fillRect(i,0,2,h)},rx,ry),
+ cb=(rx,ry)=>tex(128,128,(x,w,h)=>{x.fillStyle='#707070';x.fillRect(0,0,w,h);x.lineCap=x.lineJoin='round';for(const[lw,st]of[[15,'#000'],[10,'#fff'],[4,'#bbb']])for(const o of[22,64,106]){x.lineWidth=lw;x.strokeStyle=st;x.beginPath();for(let y=-4;y<=h+4;y+=3){const px=o+sin(y/h*TAU*2)*9;y<0?x.moveTo(px,y):x.lineTo(px,y)}x.stroke()}},rx,ry),
+ tw=()=>tex(128,128,(x,w,h)=>{x.fillStyle=hx(c);x.fillRect(0,0,w,h);for(let i=0;i<1400;i++){x.fillStyle=['rgba(255,255,255,.28)','rgba(0,0,0,.3)','rgba(222,190,140,.35)'][i%3];x.fillRect(R()*w,R()*h,1+R()*1.6,1+R()*1.6)}},4,3,1),
+ tt=()=>tex(128,128,(x,w,h)=>{x.fillStyle=hx(c);x.fillRect(0,0,w,h);for(const[o,d,q]of[[0,40,'rgba(255,255,255,.2)'],[72,12,'rgba(0,0,0,.3)'],[100,6,'rgba(240,200,96,.55)']]){x.fillStyle=q;x.fillRect(o,0,d,h);x.fillRect(0,o,w,d)}},5,3,1),
+ gr=()=>tex(256,64,(x,w,h)=>{x.fillStyle='#808080';x.fillRect(0,0,w,h);for(let i=0;i<60;i++){x.fillStyle=R()<.5?'rgba(0,0,0,.35)':'rgba(255,255,255,.3)';x.fillRect(0,R()*h,w,1+R()*1.5)}},3,1),
+ fab=(o={})=>new T.MeshStandardMaterial({color:o.map?0xffffff:col,roughness:.9,metalness:0,side:T.DoubleSide,...o}),
+ dk=(h,r=.7)=>new T.MeshStandardMaterial({color:h,roughness:r,metalness:0,side:T.DoubleSide}),
+ // the fabric: tartan and tweed are painted in the item's colour, the rest take a bump (Aran cables, cord ribs, plain wool)
+ cloth=(rx,ry)=>tart?fab({map:tt(),bumpMap:nz(6,4),bumpScale:.7}):twd?fab({map:tw(),bumpMap:nz(6,4),bumpScale:.7}):jm?fab({bumpMap:cb(rx,ry),bumpScale:2.4,roughness:.95}):cord?fab({bumpMap:rb(rx*14,1),bumpScale:1.6}):fab({bumpMap:nz(rx*3,ry*3),bumpScale:.8,roughness:wax?.42:.9}),
+ add=(g,m,p=[0,0,0],s=[1,1,1],r=[0,0,0],par=G)=>{const o=new T.Mesh(g,m);o.position.set(...p);o.scale.set(...s);o.rotation.set(...r);par.add(o);return o},
+ lat=(pts,seg=48)=>new T.LatheGeometry(new T.SplineCurve(pts.map(([r,y])=>new T.Vector2(r,y))).getPoints(30),seg),
+ // a straight open tube from a to b (x, y), radius r0 at a and r1 at b, flattened to z in depth: sleeves, cuffs, legs, collars
+ limb=(a,b,r0,r1,m,z=1)=>{const dx=a[0]-b[0],dy=a[1]-b[1];return add(new T.CylinderGeometry(r0,r1,hypot(dx,dy),40,1,true),m,[(a[0]+b[0])/2,(a[1]+b[1])/2,0],[1,1,z],[0,0,atan2(-dx,dy)])},
+ ring=(r,t,m,y,z)=>add(new T.TorusGeometry(r,t,12,40),m,[0,y,0],[1,z,1],[H,0,0]),
+ shade=f=>dk(col.clone().multiplyScalar(f).getHex(),.9);
+ if(k=='top'||k=='polo'){const knit=jm||k=='polo',pts=knit?[[.18,.96],[.26,.94],[.4,.88],[.52,.78],[.54,.5],[.53,.1],[.5,-.3],[.5,-.48]]:[[.18,1.04],[.26,1.02],[.4,.95],[.54,.84],[.55,.6],[.54,.2],[.58,-.4],[.66,-1]],
+   a=knit?[.5,.74]:[.5,.8],b=knit?[.97,-.36]:[.98,-.42],dp=.58,m=cloth(3,2),rib=fab({bumpMap:rb(28,1),bumpScale:2.2});
+  add(lat(pts),m,[0,0,0],[1,1,dp]);
+  for(const sg of[-1,1]){const A=[sg*a[0],a[1]],B=[sg*b[0],b[1]];limb(A,B,.21,.15,cloth(2,1),.85);add(new T.SphereGeometry(.215,24,16),m,[A[0],A[1],0],[1,1,.85]);
+   knit&&limb([B[0]+(A[0]-B[0])*.1,B[1]+(A[1]-B[1])*.1],B,.158,.152,rib,.85)}
+  if(jm){limb([0,-.34],[0,-.5],.515,.515,rib,dp);limb([0,1.02],[0,.9],.215,.215,rib,.8);ring(.215,.05,rib,1.02,.8)}
+  else if(k=='polo'){limb([0,-.34],[0,-.5],.515,.515,rib,dp);limb([0,1.2],[0,.9],.25,.27,cloth(2,1),.85);ring(.25,.055,m,1.2,.85)}
+  else{const Ry=y=>{for(let i=0;i<pts.length-1;i++){const[r0,y0]=pts[i],[r1,y1]=pts[i+1];if(y<=y0&&y>=y1)return r0+(r1-r0)*(y0-y)/(y0-y1)}return pts.at(-1)[0]},hn=dk(0x2a1e14,.5);
+   ring(.26,.075,m,1.04,.72);
+   for(const y of[.5,.12,-.26,-.64])add(new T.SphereGeometry(.05,16,12),hn,[.06,y,Ry(y)*dp+.01],[1,1,.6]);
+   for(const sg of[-1,1]){const x=sg*.3,y=-.5,r=Ry(y);add(new T.BoxGeometry(.3,.07,.05),m,[x,y,dp*sqrt(max(0,r*r-x*x))+.012],[1,1,1],[0,sg*.5,-sg*.1])}}}
+ else if(k=='trs'){const m=cloth(2,2),dp=.55,sh=shade(.45);
+  add(new T.CylinderGeometry(.6,.6,.16,48,1,true),m,[0,.92,0],[1,1,dp]);
+  add(new T.SphereGeometry(1,40,20,0,TAU,H,H),m,[0,.84,0],[.6,.7,.34]);
+  for(const sg of[-1,1]){limb([sg*.3,.9],[sg*.24,-.92],.31,.225,m,.85);ring(.228,.03,m,-.9,.85)}
+  add(new T.BoxGeometry(.012,.4,.02),sh,[0,.62,.325]);add(new T.SphereGeometry(.04,12,10),sh,[0,.93,.335],[1,1,.6]);
+  for(const a of[-1.35,-.65,.65,1.35,PI-.6,PI+.6])add(new T.BoxGeometry(.045,.15,.02),m,[.6*sin(a),.92,.33*cos(a)],[1,1,1],[0,a,0])}
+ else if(k=='cap'){const m=cloth(2,1),sm2=shade(.55),sh=new T.Shape();
+  add(new T.SphereGeometry(1,56,28,0,TAU,0,H),m,[0,0,0],[1,.52,.92]);
+  add(new T.TorusGeometry(1,.04,12,64),m,[0,0,0],[1,.92,1],[H,0,0]);
+  for(let i=0;i<6;i++){const f=i/6*TAU,q=[];for(let t=0;t<=1.001;t+=.05){const th=t*H;q.push(new T.Vector3(sin(th)*cos(f)*1.004,cos(th)*.52*1.004,sin(th)*sin(f)*.92*1.004))}add(new T.TubeGeometry(new T.CatmullRomCurve3(q),24,.012,6,false),sm2)}
+  add(new T.SphereGeometry(.07,16,12),m,[0,.52,0],[1,.7,1]);
+  sh.moveTo(-.68,0);sh.quadraticCurveTo(-.78,.62,0,.66);sh.quadraticCurveTo(.78,.62,.68,0);sh.closePath();
+  add(new T.ExtrudeGeometry(sh,{depth:.06,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:3,curveSegments:16}),m,[0,-.02,.7],[1,1,1],[H+.2,0,0])}
+ else if(k=='boots'){const m=fab({roughness:.28,bumpMap:nz(4,4),bumpScale:.15}),sl=dk(0x1d1a16,.6),so=new T.Shape();so.absellipse(0,0,.33,.82,0,TAU,false,0);
+  const sole=new T.ExtrudeGeometry(so,{depth:.1,bevelEnabled:true,bevelThickness:.02,bevelSize:.02,bevelSegments:2,curveSegments:32}),
+   boot=(x,ry)=>{const g=new T.Group();
+    add(new T.CylinderGeometry(.27,.245,1.2,40,1,true),m,[0,.1,0],[1,1,.95],[0,0,0],g);
+    add(new T.TorusGeometry(.268,.03,12,40),m,[0,.7,0],[1,.95,1],[H,0,0],g);
+    add(new T.SphereGeometry(1,40,24),m,[0,-.62,.32],[.3,.27,.72],[0,0,0],g);
+    add(new T.SphereGeometry(1,32,20),m,[0,-.58,-.1],[.285,.3,.3],[0,0,0],g);
+    add(sole,sl,[0,-.84,.26],[1,1,1],[H,0,0],g);
+    g.position.x=x;g.rotation.y=ry;G.add(g)};
+  boot(-.36,.14);boot(.36,-.14)}
+ else{const cv=new T.CatmullRomCurve3([[-.55,-1.3],[-.3,-.55],[.05,.55],[.12,.82],[.35,1],[.62,.92],[.72,.68],[.6,.45]].map(([x,y])=>new T.Vector3(x,y,0)),false,'centripetal'),m=fab({bumpMap:gr(),bumpScale:1.2,roughness:.62}),tg=cv.getTangent(0),f=add(new T.CylinderGeometry(.068,.06,.2,16),dk(0x3a3a3a,.4));
+  add(new T.TubeGeometry(cv,140,.055,14,false),m);add(new T.SphereGeometry(.055,14,10),m,[.6,.45,0]);
+  f.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),tg);f.position.copy(cv.getPoint(0)).addScaledVector(tg,.06);
+  if(/blackthorn/i.test(n))for(const t of[.12,.25,.38,.5,.6]){const q=cv.getPointAt(t);add(new T.SphereGeometry(.045,10,8),m,[q.x,q.y,.052],[1,1,.6])}}
+ // centred, and scaled so that its widest sweep as it turns and its half height both come to about 1.1 (a cap can be wider, trousers
+ // and wellies need more room for the round frame)
+ const bb=new T.Box3().setFromObject(G),ct=bb.getCenter(new T.Vector3()),v=new T.Vector3(),O=new T.Group();let rr=0;G.updateMatrixWorld(true);
+ G.traverse(o=>{const q=o.geometry?.attributes.position;if(q)for(let i=0;i<q.count;i++){v.fromBufferAttribute(q,i).applyMatrix4(o.matrixWorld);rr=max(rr,hypot(v.x-ct.x,v.z-ct.z))}});
+ const f=({cap:1.2,trs:.98,polo:1.04,boots:1.02}[k]||1.1)/max(rr,(bb.max.y-bb.min.y)/2);G.position.copy(ct).multiplyScalar(-f);G.scale.setScalar(f);O.add(G);return O},
+// retro (U.ret) for the find's picture. The game's pass (retro, further down) works on the whole frame, so here the model is drawn at the
+// same size of pixel the world gets and each channel is dropped to 5 bits through the same dither (x: the picture's 2D context, n: its
+// side in pixels, m: the mode, sh: the shadow's ellipse in pixels). Alpha, which the pass doesn't have, is cut at half (edges are hard,
+// as a console's sprites are), and the shadow is laid in afterwards as a dither stipple, thinning toward its rim. PS2 also blends each
+// line with its neighbours, 1-2-1, as its deflicker filter does
+fvRetro=(x,n,m,sh)=>{const im=x.getImageData(0,0,n,n),d=im.data,D=RDM[m-1],q=m==3?d.slice():d;
+ for(let j=0;j<n;j++)for(let i=0;i<n;i++){const o=(j*n+i)*4,e=D[i&3|(j&3)<<2];
+  if(d[o+3]>=128){for(let c=0;c<3;c++){const v=m==3?(q[(max(j-1,0)*n+i)*4+c]+2*q[o+c]+q[(min(j+1,n-1)*n+i)*4+c])/4:d[o+c];d[o+c]=(min(255,max(0,v+e))>>3)*255/31}d[o+3]=255}
+  else{const u=((i+.5-sh[0])/sh[2])**2+((j+.5-sh[1])/sh[3])**2;if(u<1&&e<(1-u)*4-4+.5){d[o]=166;d[o+1]=126;d[o+2]=56;d[o+3]=255}else d[o+3]=0}}
+ x.putImageData(im,0,0)},
+// the popup's own small renderer, made on the first find and kept (a transparent canvas, 112 px across unless retro makes it smaller);
+// each find gets a scene and turns slowly over a soft shadow (a hollow garment sways about its front instead, since edge-on it's a slab;
+// both stand still under Reduce Motion), and is taken down by fv3Stop when the popup closes
+fv3=async(k,n,c)=>{const my=++fvK;try{
+  fvR||((fvR=(async()=>{const cv=document.createElement('canvas'),r=new THREE.WebGPURenderer({canvas:cv,alpha:true,antialias:true,forceWebGL:!GPU});await r.init();r.setClearColor(0x000000,0);cv.className='fv3';return fvO={r,cv}})()).catch(()=>{fvR=null}));
+  const{r,cv}=await Promise.race([fvR,new Promise((_,j)=>setTimeout(j,6000))]);if(my!=fvK)return;
+  const T=THREE,S3=new T.Scene(),C3=new T.PerspectiveCamera(28,1,.1,30),pv=new T.Group(),md=fvModel(k,n,c),still=matchMedia('(prefers-reduced-motion:reduce)').matches,sw=k=='top'||k=='polo'||k=='trs',bl=document.createElement('canvas'),
+   lt=(h,i,x,y,z)=>{const l=new T.DirectionalLight(h,i);l.position.set(x,y,z);S3.add(l)};
+  bl.width=bl.height=64;{const x=bl.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(60,34,8,.5)');g.addColorStop(1,'rgba(60,34,8,0)');x.fillStyle=g;x.fillRect(0,0,64,64)}
+  const blt=new T.CanvasTexture(bl),blob=new T.Mesh(new T.CircleGeometry(.95,32),new T.MeshBasicMaterial({map:blt,transparent:true,depthWrite:false}));
+  S3.add(new T.HemisphereLight(0xfff4e0,0x8a6a40,1.1));lt(0xfff0d0,2.6,2.5,3.5,4);lt(0xbcd4ff,.7,-3,.5,2);lt(0xffe2b0,1.4,-2,2.5,-4);
+  pv.add(md);pv.rotation.x=.16;S3.add(pv);blob.rotation.x=-PI/2;blob.position.y=-1.12;S3.add(blob);C3.position.set(0,.35,5.2);C3.lookAt(0,0,0);
+  const host=$('alv'),sv=host.querySelector('svg'),t0=performance.now(),rm=U.ret.value;let on=0,rc=null,rx=null,tx=0;cv.style.visibility='hidden';host.prepend(cv);
+  // retro: a canvas of texels the size the world's pixels are on screen (240 lines, or 448 for PS2), shown point-sampled (blended for 64-bit)
+  let shp=null;
+  if(rm){tx=max(12,Math.round((cv.clientWidth||112)/(max(floor(renderer.getDrawingBufferSize(new T.Vector2()).y/(rm==3?448:240)),1)/renderer.getPixelRatio())));r.setPixelRatio(1);r.setSize(tx,tx,false);
+   blob.visible=false;{C3.updateMatrixWorld();const pj=(x,z)=>new T.Vector3(x,-1.12,z).project(C3),o=pj(0,0),px=pj(.95,0),pz=pj(0,.95);shp=[(o.x+1)/2*tx,(1-o.y)/2*tx,Math.abs(px.x-o.x)/2*tx,Math.abs(pz.y-o.y)/2*tx]}
+   rc=document.createElement('canvas');rc.width=rc.height=tx;rc.className='fv3'+(rm==2?'':' px');rc.style.visibility='hidden';rx=rc.getContext('2d',{willReadFrequently:true});host.prepend(rc)}
+  else{r.setPixelRatio(min(devicePixelRatio||1,2));r.setSize(112,112,false)}
+  fvC={md,blt,blob,rc};
+  // (its pipelines compile first, so the picture doesn't show up empty)
+  try{await r.compileAsync(S3,C3)}catch(e){}if(my!=fvK)return;
+  r.setAnimationLoop(()=>{if(my!=fvK)return;const t=still?0:(performance.now()-t0)/1000;md.rotation.y=sw?-.4+sin(t*.8)*.75:-.55+t*.7;pv.position.y=sin(t*1.7)*.035;r.render(S3,C3);if(rm){rx.clearRect(0,0,tx,tx);rx.drawImage(cv,0,0,tx,tx);fvRetro(rx,tx,rm,shp)}if(!on){on=1;(rc||cv).style.visibility='';sv&&(sv.style.display='none')}})
+ }catch(e){console.warn('find preview:',e)}},
+fv3Stop=()=>{fvK++;if(!fvC)return;fvO&&(fvO.r.setAnimationLoop(null),fvO.cv.remove());fvC.rc?.remove();fvC.md.traverse(o=>{o.geometry?.dispose();for(const m of[].concat(o.material||[])){m.map?.dispose();m.bumpMap?.dispose();m.dispose()}});fvC.blt.dispose();fvC.blob.geometry.dispose();fvC.blob.material.dispose();fvC=null},
 // a trunk opened: something not yet found (or, once there's nothing left, a purse of wool), announced and saved
 shFind=f=>{f.got=true;f.cc.visible=false;f.co.visible=true;SHF.add(f.k);const pool=[],where=['','the old farmhouse','the graveyard','the tumbledown cottage'][f.t];
  for(const[k,,O]of SHO)k!='hair'&&O.forEach((_,i)=>SHH[k]>>i&1||pool.push([k,i]));
@@ -1830,8 +1931,8 @@ shFind=f=>{f.got=true;f.cc.visible=false;f.co.visible=true;SHF.add(f.k);const po
 // a look from a trunk gets a popup (the queue fpQ, shown by fndU a moment after the lid opens and once no menu is up): the item drawn
 // on a medallion, and the choice to wear it now. The game stands still behind it (sho(4): an overlay with no panel of its own)
 fndPop=async q=>{const[k,i,where]=q;sho(4);if(ov!=4){fpQ.unshift(q);return}const[n,c]=SHO.find(o=>o[0]==k)[2][i],[f,t]=shTally(),
- w=await ask(n,`Found in ${where}. Change into it any time with the paintbrush. <b>${f}</b> of <b>${t}</b> looks found.`,'Wear it now',{v:shArt(k,n,c),c:'Keep for later'});
- ov==4&&sho(0);fpT=.5;if(w){SH[k]=i;shApply();shSave();sfx.dab()}},
+ pr=ask(n,`Found in ${where}. Change into it any time with the paintbrush. <b>${f}</b> of <b>${t}</b> looks found.`,'Wear it now',{v:shArt(k,n,c),c:'Keep for later'});
+ fv3(k,n,c);const w=await pr;fv3Stop();ov==4&&sho(0);fpT=.5;if(w){SH[k]=i;shApply();shSave();sfx.dab()}},
 // golden motes rise off each unopened trunk in sight, and a swing of the crook opens one (crookSweep)
 // the nearest within 30m sets the level (chN) and pan (chP) of their shimmering sound (amb); the first one he comes up to in a
 // session gets a tip on how to open it (fndTip)
@@ -2281,8 +2382,9 @@ class EffectComposer{
 // soft, smeary picture its video filter gave). PS2: 448 lines point-sampled so edges stay jagged, a plain Bayer dither, and its
 // deflicker filter's vertical 1-2-1 blend of neighbouring lines. Picking by uniform means switching costs no shader rebuild;
 // t is the frame as a texture. (The thick distance fog that came with 64-bit now lives in sc.fogNode for every mode)
-const PSXD=uniformArray([-4,0,-3,1,2,-2,3,-1,-3,1,-4,0,3,-1,2,-2],'float'),N64D=uniformArray([0,6,1,7,4,2,5,3,3,5,2,4,7,1,6,0],'float'),
-BAYD=uniformArray([0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(b=>(b-7.5)/2),'float'),
+// (RDM holds the three dither tables as plain numbers, which the find popup's picture reads too)
+const RDM=[[-4,0,-3,1,2,-2,3,-1,-3,1,-4,0,3,-1,2,-2],[0,6,1,7,4,2,5,3,3,5,2,4,7,1,6,0],[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(b=>(b-7.5)/2)],
+PSXD=uniformArray(RDM[0],'float'),N64D=uniformArray(RDM[1],'float'),BAYD=uniformArray(RDM[2],'float'),
 retro=t=>{const lines=n=>screenSize.div(Max(screenSize.y.div(n).floor(),1)),lo=lines(240),l2=lines(448),
  q15=(cl,D,L)=>{const m=cl.add(4).mod(4);return t.sample(cl.add(.5).div(L)).rgb.mul(255).add(D.element(int(m.x.add(m.y.mul(4))))).clamp(0,255).div(8).floor().div(31)},
  p32=q15(screenUV.mul(lo).floor(),PSXD,lo),g=screenUV.mul(lo).sub(.5),c0=g.floor(),w=g.fract(),tap=(x,y)=>q15(c0.add(vec2(x,y)),N64D,lo),
