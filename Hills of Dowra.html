@@ -873,7 +873,7 @@ const PUD2=puddleAt(positionWorld.xz,positionWorld.y,normalGeometry.y),PUD=PUD2.
 TM.colorNode=Fn(()=>{const p=positionWorld.xz,c=terrainColT(p,positionWorld.y).toVar();c.assign(mix(c,tcP.mul(vnT(p.mul(1.7)).mul(.3).add(.85)),pathT(p).mul(.85)));c.assign(mix(c,mix(tcY,tcP,vnT(p.mul(.4)).mul(.55)).mul(vnT(p.mul(1.9)).mul(.24).add(.88)),ss1(.78,1.24,yardT(p))));c.mulAssign(U.wet.mul(-.3).add(1));c.mulAssign(PUD2.y.mul(-.45).add(1));return mix(c,mix(c.mul(.22),U.hor.mul(.42),FRS),PUD)})();
 TM.roughnessNode=mix(mix(float(.95),float(.32),U.wet),float(.04),PUD);
 TM.emissiveNode=U.hor.mul(PUD.mul(FRS).mul(.1));
-const CH=new Map(),CHL=[],seen=new Set(),QU=[],CCOL=new Map();let pcx=0,pcz=0;
+const CH=new Map(),CHL=[],seen=new Set(),QU=[],CCOL=new Map(),GATES=[],GOPEN=new Map();let pcx=0,pcz=0;
 function mkC(cx,cz){const k=cx+','+cz,ox=cx*CS,oz=cz*CS,g=new THREE.PlaneGeometry(CS,CS,SN,SN).rotateX(-PI/2),p=g.attributes.position,nr=g.attributes.normal,S1=SN+1;
  for(let i=0;i<p.count;i++)p.setY(i,H(p.getX(i)+ox,p.getZ(i)+oz));g.computeVertexNormals();
  // chunk-border normals from the analytic surface so neighbouring chunks meet without a lighting seam
@@ -884,7 +884,7 @@ function mkC(cx,cz){const k=cx+','+cz,ox=cx*CS,oz=cz*CS,g=new THREE.PlaneGeometr
  for(let i=0;i<8;i++){const q=pt(0),t=.5+r()*1.4,ry=r()*7,rx=r()*.3;if(q){A[3].push([q[0],q[1],q[2],t,ry,t*.7,rx]);t>1&&cg.push(new THREE.IcosahedronGeometry(.92,0).scale(t,t*.7*.9,t).rotateX(rx).rotateY(ry).translate(q[0],q[1],q[2]))}}
  for(let i=0;i<13;i++){const q=pt(),c=[0xffffff,0xffe066,0xc77dff,0xff8fab][i%4];if(q)for(let j=0;j<8;j++){const x=q[0]+(r()-.5)*7,z=q[2]+(r()-.5)*7,y=Hm(x,z);y>WL+1&&A[4].push([x,y-.02,z,.9+r()*.5,r()*7,0,0,c])}}
  // this chunk's share of the fields: everything is placed by the chunk it stands in, so each wall run, hedge and tree is built exactly once
- const lo=ox-CS/2,lz=oz-CS/2,ok=(x,z)=>x>=lo&&x<lo+CS&&z>=lz&&z<lz+CS&&!farmClear(x,z),T=SPC.map(()=>[]),WS=[[],[],[],[]],HG=[[],[]],GO=[],PR=[],GT=[],BL=[],RU=[[],[]],wc=[],OFL=[],GCP=[],
+ const lo=ox-CS/2,lz=oz-CS/2,ok=(x,z)=>x>=lo&&x<lo+CS&&z>=lz&&z<lz+CS&&!farmClear(x,z),T=SPC.map(()=>[]),WS=[[],[],[],[]],HG=[[],[]],GO=[],PR=[],GT=[],gts=[],BL=[],RU=[[],[]],wc=[],OFL=[],GCP=[],
  tree=(k,x,z,t,ry=r()*7,rx=0)=>{if(!ok(x,z))return;const y=Hm(x,z);if(y<WL+.5)return;T[k].push([x,y-.2,z,t,ry,t,rx]);const c=SPC[k][2]*t;cg.push(Cy(c,c*1.12,7,8).translate(x,y+2.5,z))},
  // the thorns all lean the same way, away from the prevailing wind
  thorn=(x,z,f=.35)=>tree(r()<f?5:4,x,z,.85+r()*.4,-.6+(r()-.5)*.5,(r()-.5)*.08),
@@ -1010,9 +1010,12 @@ function mkC(cx,cz){const k=cx+','+cz,ox=cx*CS,oz=cz*CS,g=new THREE.PlaneGeometr
    if(gt>=0){const e=(wall?.85:1.7)/el,q1=P(gt-gh),q2=P(gt+gh);put(gt-gh-e,1);put(gt+gh+e,1);
     for(const q of[q1,q2])if(ok(q[0],q[1])){const y=Hm(q[0],q[1]);y>WL+.4&&(PR.push([q[0],y-.05,q[1],1,0,1,0,wall&&g(7)<.5?0x9d998e:0xffffff]),cg.push(Cy(.36,.36,2.2,8).translate(q[0],y+1.1,q[1])))}
     // the gate hangs shut from the first pier and latches on the second: its leaf (2.8m modelled) is scaled to the opening between them and
-    // sheared up or down the slope (slot 8) so its posts stay plumb. It has no collider, so the way through stays open
+    // sheared up or down the slope (slot 8) so its posts stay plumb. Shut, it is solid (a collider of its own, flagged a wall so the dog
+    // clears it and a stranded sheep can scramble over, as over any wall); a swing of the crook opens it (gtU), and one opened is built
+    // open again when its chunk is (GOPEN)
     if(ok(q1[0],q1[1])){const y1=Hm(q1[0],q1[1]),y2=Hm(q2[0],q2[1]),ux=q2[0]-q1[0],uz=q2[1]-q1[1],d=hypot(ux,uz),gs=(d-.72)/2.8,h=.36/d;
-     y1>WL+.4&&y2>WL+.4&&GT.push([q1[0]+ux*h,y1+(y2-y1)*h,q1[1]+uz*h,gs,atan2(ux,uz),1.15,0,0,(y2-y1)/d*gs/1.15])}}
+     if(y1>WL+.4&&y2>WL+.4){const hx=q1[0]+ux*h,hz=q1[1]+uz*h,gr={ck:cx+','+cz,key:hx.toFixed(1)+','+hz.toFixed(1),hx,hy:y1+(y2-y1)*h,hz,ry:atan2(ux,uz),gs,len:d-.72,sl:(y2-y1)/d,y1,y2,a:0,u:1,tg:0,it:null,row:GT.length,col:null},o=GOPEN.get(gr.key);
+      o&&(gr.a=gr.tg=o);GT.push(gtRow(gr,gr.a));gts.push(gr);GATES.push(gr)}}}
    // hedgerow trees every 12-30m (ash, thorn, oak, sycamore); an odd thorn or ash grown up against a wall, and gorse at its foot (the trees and gorse keep clear of the gate)
    for(let d=4+g(11)*12,k=0;d<el-3;d+=wall?24+g(20+k)*36:12+g(20+k)*18,k++){const t=d/el;if(gt>=0&&abs(t-gt)<gh+3/el)continue;const p=P(t),h=g(40+k),sd=(g(60+k)<.5?-1:1)*(wall?1.5:.4),x=p[0]+nx*sd,z=p[1]+nz*sd;
     wall?h<.5?thorn(x,z):h<.7&&tree(3,x,z,1.25+r()*.45):h<.34?tree(3,x,z,1.25+r()*.45):h<.6?thorn(x,z):h<.8?tree(2,x,z,1.15+r()*.45):syc(x,z)}
@@ -1057,11 +1060,11 @@ function mkC(cx,cz){const k=cx+','+cz,ox=cx*CS,oz=cz*CS,g=new THREE.PlaneGeometr
  addI(BGL,VL,A[1]);addI(BGL,VL,A[7]);addI(RK,VW,A[3],1);addI(FLW,FLM,A[4]);
  SPC.forEach(([g,l,,b],k)=>{addI(g,VWF,T[k],1);l&&addI(l,VL,T[k],1);b&&addI(b,VB,T[k])});
  WS.forEach((M,k)=>addM(WALLS[k],VW,M,!mob));HG.forEach((a,k)=>{addI(HEDGEL[k],VL,a,!mob);k&&addI(HDFB,VB,a)});
- addI(GRSL,VL,GO,!mob);addI(GRSB,VB,GO);addI(PIER,VC,PR,1);addI(FGT,VC,GT,1);addI(BAL,HYM,BL,1);RU.forEach((a,k)=>addM(RUINS[k],VW,a,1));
+ addI(GRSL,VL,GO,!mob);addI(GRSB,VB,GO);addI(PIER,VC,PR,1);if(GT.length){const it=plItem(FGT,VC,GT,1);itm.push(it);gts.forEach(gr=>gr.it=it)}addI(BAL,HYM,BL,1);RU.forEach((a,k)=>addM(RUINS[k],VW,a,1));
  addI(BYRE,VW,PX.byre,1);addI(CART,VC,PX.cart,1);addI(CHURCH,VW,PX.church,1);PX.st.forEach((a,k)=>addI(GSTONE[k],VW,a,1));
  LGI.forEach((M,n)=>addM(LOGS[n],VWF,M,1));STI.forEach((a,n)=>addI(STUMPS[n],VWF,a,1));TDI.forEach((a,n)=>addI(MSH[n],VWF,a,!mob));
  if(!seen.has(k)){seen.add(k);if(hypot(ox,oz)>100)for(let i=r()*2|0;i>=0;i--){const q=pt(1);q&&!nearFarm(q[0],q[2])&&(!run||offView(q[0],q[2]))&&spawn(q[0],q[2],r()<.65)}}
- const cc=[];cg.length&&cc.push(mkCol(cg));wc.length&&cc.push(Object.assign(mkCol(wc),{wall:1}));cc.length&&CCOL.set(k,cc);colList();sc.add(G);const rec={g:G,x:ox,z:oz,k,gc:GCP,itm};gcD=1;plD=1;CH.set(k,rec);CHL.push(rec)}
+ const cc=[];cg.length&&cc.push(mkCol(cg));wc.length&&cc.push(Object.assign(mkCol(wc),{wall:1}));for(const gr of gts)gr.tg||(gr.col=Object.assign(mkCol([gtBox(gr)]),{wall:1}),cc.push(gr.col));cc.length&&CCOL.set(k,cc);colList();sc.add(G);const rec={g:G,x:ox,z:oz,k,gc:GCP,itm};gcD=1;plD=1;CH.set(k,rec);CHL.push(rec)}
 const colList=()=>{COLS.length=0;COLS.push(FARMC,FENCEC);for(const c of CCOL.values())COLS.push(...c)};
 let FARMC=null,FENCEC=null;
 // ---- instance pools ----
@@ -1080,10 +1083,12 @@ let FARMC=null,FENCEC=null;
 class PoolAttr extends THREE.InstancedBufferAttribute{clone(){return this}}
 const KD=new Map(),PLS=new Map();let plD=1,kdN=0;
 const plKind=(g,ma)=>{const k=g.uuid+ma.uuid;let kd=KD.get(k);if(!kd){cvn(g);g.boundingSphere||g.computeBoundingSphere();const r=g.boundingSphere.radius;KD.set(k,kd={id:kdN++,g,ma,ia:iaOk(g),lv:r<LVR[0]?0:r<LVR[1]?1:2})}return kd},
+// one row's matrix into mat (slot 8 shears the z axis up the y axis, to follow a slope with the posts left plumb)
+plMat=(v,mat,i)=>{DM.position.set(v[0],v[1],v[2]);DM.rotation.set(v[6]||0,v[4]||0,0);DM.scale.set(v[3],v[5]||v[3],v[3]);DM.updateMatrix();DM.matrix.toArray(mat,i*16);
+ if(v[8]){const o=i*16;mat[o+8]+=v[8]*mat[o+4];mat[o+9]+=v[8]*mat[o+5];mat[o+10]+=v[8]*mat[o+6]}},
 // a chunk's instances of one kind: a=[x,y,z,scale,yaw,scaleY,pitch,colour] rows, or M=flat matrices
 plItem=(g,ma,a,cs)=>{const n=a.length,mat=new Float32Array(n*16);let col=null;
- a.forEach((v,i)=>{DM.position.set(v[0],v[1],v[2]);DM.rotation.set(v[6]||0,v[4]||0,0);DM.scale.set(v[3],v[5]||v[3],v[3]);DM.updateMatrix();DM.matrix.toArray(mat,i*16);
-  if(v[8]){const o=i*16;mat[o+8]+=v[8]*mat[o+4];mat[o+9]+=v[8]*mat[o+5];mat[o+10]+=v[8]*mat[o+6]}
+ a.forEach((v,i)=>{plMat(v,mat,i);
   if(v[7]){col||(col=new Float32Array(n*3).fill(1));C1.setHex(v[7]);col[i*3]=C1.r;col[i*3+1]=C1.g;col[i*3+2]=C1.b}});
  return{kd:plKind(g,ma),mat,col,n,cs:!!cs}},
 plItemM=(g,ma,M,cs)=>({kd:plKind(g,ma),mat:M instanceof Float32Array?M:Float32Array.from(M),col:null,n:M.length/16,cs:!!cs}),
@@ -1110,7 +1115,7 @@ plSync=all=>{plD=0;const T=new Map();
 // what is far is drawn lightly (see cull): meshes too small to show at that range wait out of the view (LVR radii, LVD distances
 // from the camera), and only chunks near the sun's shadow box cast shadows (SHD)
 const AHD=mob?230:280,AHM=8e3,LVR=[1.4,2.2],LVD=[150,220],SHD=mob?140:185,AW=new Map();let aqT=0;
-const dropC=(k,o)=>{AW.delete(k);plD=1;sc.remove(o.g);o.g.children.forEach(m=>m.isInstancedMesh?m.dispose():m.geometry.dispose());CH.delete(k);CHL.splice(CHL.indexOf(o),1);gcD=1;for(let q=FND.length;q--;)FND[q].ck==k&&FND.splice(q,1);const c=CCOL.get(k);if(c){c.forEach(o=>o.g.dispose());CCOL.delete(k);colList()}},
+const dropC=(k,o)=>{AW.delete(k);plD=1;sc.remove(o.g);o.g.children.forEach(m=>m.isInstancedMesh?m.dispose():m.geometry.dispose());CH.delete(k);CHL.splice(CHL.indexOf(o),1);gcD=1;for(let q=FND.length;q--;)FND[q].ck==k&&FND.splice(q,1);for(let q=GATES.length;q--;)GATES[q].ck==k&&GATES.splice(q,1);const c=CCOL.get(k);if(c){c.forEach(o=>o.g.dispose());CCOL.delete(k);colList()}},
 aheadScan=(cx,cz,now)=>{const p=P.position,fx=LK.x-cam.position.x,fz=LK.z-cam.position.z,fl=hypot(fx,fz)||1,vx=fx/fl,vz=fz/fl,mv=pvel>1.2,hx=sin(P.rotation.y),hz=cos(P.rotation.y),L=[];
  for(let i=-3;i<4;i++)for(let j=-3;j<4;j++){if(max(abs(i),abs(j))<2)continue;const rx=(cx+i)*CS-p.x,rz=(cz+j)*CS-p.z,rl=hypot(rx,rz),d=hypot(max(abs(rx)-CS/2,0),max(abs(rz)-CS/2,0));
   if(d<=AHD&&(rx*vx+rz*vz>.45*rl||mv&&rx*hx+rz*hz>.45*rl)){L.push([d,cx+i,cz+j]);AW.set((cx+i)+','+(cz+j),now)}}
@@ -1586,7 +1591,18 @@ sfx={baa:()=>baa(.06),find:()=>{if(!MU)return[523,659,784,1047].forEach((f,i)=>s
   // levels are high because the noise buffer is mostly low rumble: band-passed, it lands ~2.5x above the rain's own hiss
   nz(2600,520,.8,.45,.24,'bandpass');nz(420,160,.7,.25,.15,'lowpass');tone(310*k,105*k,.1,0,.1,pn);
   for(let i=2+(R()*2|0);i--;){const f=1400+R()*1200;tone(f,f*1.35,.04,.05+R()*.12,.04,cl(pn+(R()-.5)*.4,-1,1))}},
- bark:()=>{if(!AC)return;for(let i=0;i<2;i++){const t=AC.currentTime+i*.17,o=AC.createOscillator(),q=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.setValueAtTime(540,t);o.frequency.exponentialRampToValueAtTime(290,t+.09);q.type='bandpass';q.frequency.value=950;q.Q.value=1.3;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.08,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+.13);o.connect(q).connect(g);pan(g,0);o.start(t);o.stop(t+.15)}}};
+ bark:()=>{if(!AC)return;for(let i=0;i<2;i++){const t=AC.currentTime+i*.17,o=AC.createOscillator(),q=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.setValueAtTime(540,t);o.frequency.exponentialRampToValueAtTime(290,t+.09);q.type='bandpass';q.frequency.value=950;q.Q.value=1.3;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.08,t+.012);g.gain.exponentialRampToValueAtTime(.001,t+.13);o.connect(q).connect(g);pan(g,0);o.start(t);o.stop(t+.15)}},
+ // a field gate swung open: the latch's clack, the hinge's creak as it goes round, and the knock of wood where it stops (pn: pan)
+ gate:(pn=0)=>{if(!AC||!NB)return;const t=AC.currentTime,k=.9+R()*.2,
+  nz=(f,q,v,dl,d,ty)=>{const s=AC.createBufferSource(),b=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;b.type=ty;b.Q.value=q;b.frequency.value=f;g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(v,t+dl+.006);g.gain.exponentialRampToValueAtTime(.001,t+dl+d);s.connect(b).connect(g);pan(g,pn);s.start(t+dl,R()*1.5);s.stop(t+dl+d+.02)},
+  tone=(f0,f1,v,dl,d)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(f0,t+dl);o.frequency.exponentialRampToValueAtTime(f1,t+dl+d*.7);g.gain.setValueAtTime(0,t+dl);g.gain.linearRampToValueAtTime(v,t+dl+.004);g.gain.exponentialRampToValueAtTime(.001,t+dl+d);o.connect(g);pan(g,pn);o.start(t+dl);o.stop(t+dl+d+.02)},
+  o=AC.createOscillator(),l=AC.createOscillator(),lg=AC.createGain(),q=AC.createBiquadFilter(),g=AC.createGain();
+  nz(1500,1.2,.5,0,.07,'bandpass');tone(420,170,.09,0,.07);
+  o.type='sawtooth';o.frequency.setValueAtTime(190*k,t+.06);o.frequency.linearRampToValueAtTime(330*k,t+.38);o.frequency.linearRampToValueAtTime(240*k,t+.72);
+  l.frequency.value=19+R()*8;lg.gain.value=22;l.connect(lg).connect(o.frequency);q.type='bandpass';q.frequency.value=820;q.Q.value=5;
+  g.gain.setValueAtTime(0,t+.06);g.gain.linearRampToValueAtTime(.04,t+.16);g.gain.setValueAtTime(.04,t+.56);g.gain.linearRampToValueAtTime(0,t+.76);o.connect(q).connect(g);pan(g,pn);
+  for(const x of[o,l]){x.start(t+.06);x.stop(t+.8)}
+  nz(320,.7,.5,.78,.16,'lowpass');tone(150,66,.12,.78,.14)}};
 const baa=(v=.05,pn=0,f=R()<.25?400+R()*120:210+R()*90)=>{if(!AC)return;const t=AC.currentTime,d=.62+R()*.4,G=v*4,o=AC.createOscillator(),l=AC.createOscillator(),am=AC.createGain(),lg=AC.createGain(),vg=AC.createGain(),mx=AC.createGain(),g=AC.createGain(),F=(ty,fq,Q,lv)=>{const b=AC.createBiquadFilter(),k=AC.createGain();b.type=ty;b.frequency.value=fq;b.Q.value=Q;k.gain.value=lv;am.connect(b).connect(k).connect(mx);return b},f1=F('bandpass',380,4,1),f2=F('bandpass',1100,5,.6);F('lowpass',520,.7,.3);
  PW=PW||AC.createPeriodicWave(new Float32Array(32),Float32Array.from({length:32},(_,i)=>i?1/i**1.3:0));o.setPeriodicWave(PW);o.frequency.setValueAtTime(f*.9,t);o.frequency.linearRampToValueAtTime(f*1.05,t+.12);o.frequency.linearRampToValueAtTime(f,t+d*.6);o.frequency.linearRampToValueAtTime(f*.84,t+d);
  l.frequency.value=8+R()*3;lg.gain.value=.35;am.gain.value=.65;l.connect(lg).connect(am.gain);vg.gain.value=f*.03;l.connect(vg).connect(o.frequency);f1.frequency.setValueAtTime(380,t);f1.frequency.exponentialRampToValueAtTime(820,t+.08);f1.frequency.linearRampToValueAtTime(690,t+d);f2.frequency.setValueAtTime(1100,t);f2.frequency.exponentialRampToValueAtTime(1550,t+.08);
@@ -1795,7 +1811,7 @@ SH={top:0,cap:0,polo:0,trs:0,boots:0,hair:0,crook:0},SHH={top:1,cap:1,polo:1,trs
 shC=k=>SHO.find(o=>o[0]==k)[2][SH[k]][1],shSave=()=>{try{localStorage.setItem(SHK,JSON.stringify({sel:SH,own:SHH,found:[...SHF]}))}catch(e){}};
 try{const o=JSON.parse(localStorage.getItem(SHK));if(o){for(const[k,,O]of SHO){SHH[k]|=(o.own?.[k]|0)&(1<<O.length)-1;const v=o.sel?.[k];Number.isInteger(v)&&v>=0&&v<O.length&&SHH[k]>>v&1&&(SH[k]=v)}(o.found||[]).forEach(k=>SHF.add(k))}}catch(e){}
 // dress him: dyes into the shader, the crook's wood, and the Aran jumper's body (sculpted the first time it's worn) in place of the coat's
-let COG=null,ARG=null,fndT=0,fndTip=0,fpQ=[],fpT=0,fvR=null,fvO=null,fvK=0,fvC=null;const shApply=()=>{const ar=SH.top==6;ar||SHU.top.value.setHex(shC('top'));for(const k of['cap','polo','trs','boots','hair'])SHU[k].value.setHex(shC(k));staff.material.color.setHex(shC('crook'));
+let COG=null,ARG=null,fndT=0,fndTip=0,fpQ=[],fpT=0,fvR=null,fvO=null,fvK=0,fvC=null,gtTip=0;const shApply=()=>{const ar=SH.top==6;ar||SHU.top.value.setHex(shC('top'));for(const k of['cap','polo','trs','boots','hair'])SHU[k].value.setHex(shC(k));staff.material.color.setHex(shC('crook'));
  COG&&(PLM.geometry=ar?ARG||(ARG=manG(0,1)):COG)},
 // how many of the shepherd's looks are found (the first of each kind is his own, and hair is his to choose), and how many there are
 shTally=()=>{const fo=SHO.filter(o=>o[0]!='hair');return[fo.reduce((a,[k,,O])=>a+O.filter((_,i)=>i&&SHH[k]>>i&1).length,0),fo.reduce((a,[,,O])=>a+O.length-1,0)]},
@@ -1933,6 +1949,26 @@ shFind=f=>{f.got=true;f.cc.visible=false;f.co.visible=true;SHF.add(f.k);const po
 fndPop=async q=>{const[k,i,where]=q;sho(4);if(ov!=4){fpQ.unshift(q);return}const[n,c]=SHO.find(o=>o[0]==k)[2][i],[f,t]=shTally(),
  pr=ask(n,`Found in ${where}. Change into it any time with the paintbrush. <b>${f}</b> of <b>${t}</b> looks found.`,'Wear it now',{v:shArt(k,n,c),c:'Keep for later'});
  fv3(k,n,c);const w=await pr;fv3Stop();ov==4&&sho(0);fpT=.5;if(w){SH[k]=i;shApply();shSave();sfx.dab()}},
+// ---- field gates: shut ones are solid, and a swing of the crook opens one. It swings round on its hinge, away from the shepherd, in .8s
+// (GMX radians, its angle a signed turn from the shut line) and stays open for the session. Only a gate within GRC of him, in the arc
+// in front of him (or right at his feet), is opened, so the crook's long reach doesn't open every gate in sight. The first shut gate he
+// comes up to in a session gets a tip on how to open it ----
+GMX=1.75,GRC=3.4,
+gtRow=(g,a)=>{const ry=g.ry+a;return[g.hx,g.hy,g.hz,g.gs,ry,1.15,0,0,(a?(Hm(g.hx+sin(ry)*g.len,g.hz+cos(ry)*g.len)-g.hy)/g.len:g.sl)*g.gs/1.15]},
+// the leaf's collider (shut): a slab the length of the leaf, from the ground under it to a little above its top bar
+gtBox=g=>{const lo=min(g.y1,g.y2)-.25,hi=max(g.y1,g.y2)+1.4;return B(.2,hi-lo,g.len).translate(0,(lo+hi)/2,g.len/2).rotateY(g.ry).translate(g.hx,0,g.hz)},
+// the nearest point of a shut gate's leaf to (x, z): its distance and the point
+gtNear=(g,x,z)=>{const ux=sin(g.ry),uz=cos(g.ry),t=cl((x-g.hx)*ux+(z-g.hz)*uz,0,g.len),nx=g.hx+ux*t,nz=g.hz+uz*t;return[hypot(nx-x,nz-z),nx,nz]},
+gtOpen=(g,sg)=>{if(g.tg)return;g.tg=sg*GMX;g.u=0;GOPEN.set(g.key,g.tg);
+ if(g.col){const cc=CCOL.get(g.ck),i=cc?cc.indexOf(g.col):-1;i>=0&&cc.splice(i,1);g.col.g.dispose();g.col=null;colList()}
+ T3.set(g.hx,g.hy+1,g.hz).project(cam);sfx.gate(cl(T3.x,-1,1)*.7)},
+// the crook's swing at (x, z) facing (fx, fz) with reach r
+gtSwing=(x,z,fx,fz,r)=>{for(const g of GATES){if(g.tg)continue;const[d,nx,nz]=gtNear(g,x,z);if(d>min(r,GRC)||d>1.5&&((nx-x)*fx+(nz-z)*fz)/d<.2)continue;gtOpen(g,(x-g.hx)*cos(g.ry)-(z-g.hz)*sin(g.ry)>0?-1:1)}},
+// each frame: gates on their way round are re-posed in their chunk's instance data, and the pools repacked to show it
+gtU=dt=>{const p=P.position;let mv=0,nr=0;
+ for(const g of GATES){if(!g.tg){!gtTip&&gtNear(g,p.x,p.z)[0]<4&&(nr=1);continue}if(g.a==g.tg)continue;g.u=min(1,g.u+dt/.8);g.a=g.u<1?g.tg*(1-(1-g.u)**3):g.tg;plMat(gtRow(g,g.a),g.it.mat,g.row);mv=1}
+ mv&&(plD=1);
+ if(nr&&!ov&&!nph){gtTip=1;toast(`A shut gate. Swing your crook at it ${gpOn?`with ${gpG('a')}`:mob?'(the round button)':'with <b>Space</b>'} to open it.`,'','crook')}},
 // golden motes rise off each unopened trunk in sight, and a swing of the crook opens one (crookSweep)
 // the nearest within 30m sets the level (chN) and pan (chP) of their shimmering sound (amb); the first one he comes up to in a
 // session gets a tip on how to open it (fndTip)
@@ -2095,10 +2131,10 @@ swing=()=>{if(!run||pz||nph||swC>0)return;swT=swH=0;swC=SWCD;swP=P.rotation.y+sw
 // a boot comes down every half walk cycle; in a puddle it throws droplets, leaves a ring and splashes
 wetStep=sd=>{const p=P.position,fy=P.rotation.y,o=sd?.16:-.16,x=p.x+cos(fy)*o+sin(fy)*.18,z=p.z-sin(fy)*o+cos(fy)*.18;if(pudAt(x,z)<.4)return;
  const y=Hm(x,z);FRA.setXYZW(frI,x,y,z,tm);FRA.needsUpdate=true;frI=(frI+1)%FRN;emit(x,y+.08,z,7,0xd2e3f0,1.8,2.6,.45,9,.22);sfx.splash(sd?.12:-.12)},
-// (an unopened trunk in the same reach is knocked open)
+// (an unopened trunk in the same reach is knocked open, and a shut gate within a few metres swung open)
 crookSweep=()=>{const p=P.position,fy=P.rotation.y,fx=sin(fy),fz=cos(fy),r=CRR[L.crook]||5,inR=(x,z)=>{const dx=x-p.x,dz=z-p.z,d=hypot(dx,dz);return d<=r&&(d<=1.5||(dx*fx+dz*fz)/d>=.2)};let c=0;
  for(const s of S){if(s.st>1||s.hop||!inR(s.x,s.z))continue;s.st||rev(s);s.st=2;c++;emit(s.x,s.y+2.2,s.z,10,0xff7eb6,2,3,1,2)}c&&(sfx.baa(),sfx.coin());
- for(const f of FND)!f.got&&inR(f.x,f.z)&&shFind(f)};
+ for(const f of FND)!f.got&&inR(f.x,f.z)&&shFind(f);gtSwing(p.x,p.z,fx,fz,r)};
 // the swing trail: a ribbon the crook sweeps through the air, from a point down the shaft out to the top of the hook. Each frame of the
 // stroke adds a slice at the staff's pose; slices fade out over swTL seconds, clear toward the shaft and narrowing as they age, so the
 // stroke leaves one clean crescent that thins away from its tail
@@ -2482,7 +2518,7 @@ function loop(){if(dead)return;const now=performance.now();if(fcap&&now-last<10.
  // the cottage menu keeps the world live (lv): wind, weather, the flock, the dog and the shepherd, idling as he can't walk, all carry
  // on behind it. Only the game waits, as in the other menus: the day clock, contentment, new strays, the weather's turn and saving
  const lv=!pz||ov==3;
- try{gpPoll(dt);if(nph==2)ngt(dt);else{if(lv){tm+=dt;U.t.value=tm;wxU(dt);if(run){mvP(dt);fndU(dt);if(!pz){hap(dt);if((ppT-=dt)<0){ppT=2;pop()}if(dqt>0&&(dqt-=dt)<=0){toast(`<b>${dq}</b> sheep home safe! <b>+${dqw}</b> wool`,'g','cottage');sfx.coin();dq=dqw=0;sv()}if((svT-=dt)<0){svT=15;sv()}dayU(dt)}cbU()}shp(dt);wv(dt);stream()}
+ try{gpPoll(dt);if(nph==2)ngt(dt);else{if(lv){tm+=dt;U.t.value=tm;wxU(dt);if(run){mvP(dt);fndU(dt);gtU(dt);if(!pz){hap(dt);if((ppT-=dt)<0){ppT=2;pop()}if(dqt>0&&(dqt-=dt)<=0){toast(`<b>${dq}</b> sheep home safe! <b>+${dqw}</b> wool`,'g','cottage');sfx.coin();dq=dqw=0;sv()}if((svT-=dt)<0){svT=15;sv()}dayU(dt)}cbU()}shp(dt);wv(dt);stream()}
   U.dt.value=lv?dt:0;camU(dt);vwU();cull();if((ht-=dt)<0){ht=.2;if(run){hud();amb(.2)}else MU&&MU.tick(mof?0:1)}renderer.compute(GL[0].cs);renderer.compute(GL[1].cs);GSW.a.value.w=0;CMP.render()}}
  catch(e){dead=1;console.error(e);fail('The game stopped unexpectedly','Your flock is saved as you play, so reloading picks up close to where you left off.')}}
 $('go').onclick=()=>{if(!FARM){FARM=$('fn').value.trim().replace(/\s+/g,' ')||'Dowra Farm';try{localStorage.setItem(SK+'-name',FARM)}catch(e){}}$('fnm').textContent=FARM;AC||aud();if(sd){W=sd.W||0;Object.assign(L,sd.L);delete L.horn;if('paint'in L){czSaved||(CZ.door=L.paint%6,CZH.door|=1<<CZ.door,czApply(),czSave());delete L.paint}hp=sd.hp??65;dy=sd.dy||1;ghT=sd.gh|0;for(let i=0;i<(sd.cnt|0);i++){const a=R()*TAU,r=sqrt(R())*(penR()-2);spawn(cos(a)*r,sin(a)*r,0,3,i<(sd.bk|0))}cnt=hcn=S.filter(s=>s.st==3).length}$('st').hidden=true;$('hud').hidden=$('tb').hidden=$('hc').hidden=$('cb').hidden=false;run=1;wxN=wxDur(wxI);apply();hud();if(sd)toast(`Welcome back to <b>${escH(FARM)}</b>. Your flock missed you.`,'g','shamrock');else{toast(`Your flock slipped the gate! Swing your crook ${gpOn?`with ${gpG('a')}`:mob?'(the round button)':'with <b>Space</b>'} to gather sheep, then walk them home to the pen.`,'','sheep');setTimeout(()=>toast('Rustling bushes hide sheep. Walk right up to one to flush it out.','','leaf'),5500);setTimeout(()=>toast('A day lasts 12 minutes. Get the flock home before the sun goes down.','','dawn'),11000)}};
