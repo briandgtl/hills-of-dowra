@@ -23,7 +23,6 @@ body.pd button:focus{outline:3px solid var(--gold2);outline-offset:3px}
 .pn{color:var(--ink);background:radial-gradient(130% 110% at 50% 42%,rgba(255,251,234,.6),rgba(255,251,234,0) 56%),radial-gradient(160% 140% at 50% 50%,transparent 57%,rgba(98,58,16,.45)),var(--paper),linear-gradient(172deg,#f2e4c0,#e0c993);background-clip:padding-box;border:13px solid transparent;border-image:var(--knot) 16 round;box-shadow:0 12px 30px rgba(18,10,2,.42)}
 .pn.sm{border-width:9px;border-image:var(--knot2) 16 round;box-shadow:0 6px 16px rgba(18,10,2,.35)}
 h2{font:400 30px/1.1 Metamorphous,Georgia,serif;color:var(--moss3)}
-h2::first-letter{color:var(--ox)}
 /* HUD */
 /* the HUD: a round badge, a parchment disc in a dark band ringed with gold like the day dial's frame. The dial's arch nests in its
    top, the four readings sit in a pair of pairs beneath (their names kept for screen readers and tooltips), the happiness bar at
@@ -160,13 +159,11 @@ body.cz :is(#hud,#tb,#cb,#hc,#ts){visibility:hidden}
 /* the title screen, between loading and the farm menu: the name in white over the orbiting hills, a prompt at the foot */
 #tt{position:fixed;inset:0;display:grid;place-items:center;padding:0 16px;cursor:pointer;animation:ttin 1.4s ease-out}
 #tt h1{color:#fff;text-align:center;text-shadow:0 2px 26px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.35)}
-#tt h1::first-letter{color:#fff;text-shadow:inherit}
 #tt p{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(7vh + env(safe-area-inset-bottom,0px));text-align:center;font:400 clamp(15px,2.2vw,19px) Metamorphous,Georgia,serif;letter-spacing:.08em;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.7);animation:ttp 2.6s ease-in-out 1.4s infinite}
 @keyframes ttin{from{opacity:0}}
 @keyframes ttp{50%{opacity:.4}}
 #st>.pn{width:min(640px,100%);max-height:100%;overflow:auto;display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 24px 18px;text-align:center}
 h1{font:400 clamp(40px,9.5vw,86px)/1 "Uncial Antiqua",Georgia,serif;color:var(--moss3);text-shadow:0 1px 0 rgba(255,255,255,.45);text-wrap:balance}
-h1::first-letter{color:var(--ox);font-size:1.22em;text-shadow:2px 2px 0 var(--gold),3px 3px 0 rgba(60,30,6,.4)}
 .dv{width:min(300px,80%);height:20px;color:var(--gold2);fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
 .sub{max-width:40ch;font-size:clamp(15px,2.3vw,18px);color:var(--ink2);text-wrap:balance}
 #go,#sg{padding:12px 34px;font-size:19px}
@@ -184,7 +181,6 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
    as .ks does: keys at a keyboard, the toolbar's own stones on a touch screen, the pad's glyphs once a controller is connected */
 .ct{display:grid;gap:9px;width:100%;margin-top:2px}
 .cth{display:flex;align-items:center;gap:12px;font:400 15px Metamorphous,Georgia,serif;letter-spacing:.08em;color:var(--ink2)}
-.cth::first-letter{color:inherit}
 .cth::before,.cth::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold2))}.cth::after{rotate:180deg}
 .cg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .cg.tch{grid-template-columns:repeat(5,minmax(0,1fr))}
@@ -273,7 +269,7 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
 i.wt{font:400 12px Metamorphous,Georgia,serif;color:var(--moss);margin-left:4px}
 #fd{position:fixed;inset:0;background:#05070d;opacity:0;pointer-events:none;transition:opacity .9s}
 #nx{position:fixed;inset:0;cursor:pointer}#nx .lb{position:fixed;left:0;right:0;height:11vh;background:#050403;transition:transform 1s ease}#nx .lbt{top:0;transform:translateY(-100%)}#nx .lbb{bottom:0;transform:translateY(100%)}#nx.on .lb{transform:none}
-#nx h2{position:fixed;left:0;right:0;top:calc(11vh + 16px);padding:0 16px;text-align:center;font-size:clamp(26px,5vw,46px);color:var(--gold3);text-shadow:0 2px 18px rgba(0,0,0,.85);opacity:0;transition:opacity 1.2s .5s}#nx h2::first-letter{color:var(--gold3)}#nx.on h2{opacity:1}
+#nx h2{position:fixed;left:0;right:0;top:calc(11vh + 16px);padding:0 16px;text-align:center;font-size:clamp(26px,5vw,46px);color:var(--gold3);text-shadow:0 2px 18px rgba(0,0,0,.85);opacity:0;transition:opacity 1.2s .5s}#nx.on h2{opacity:1}
 #tl{position:fixed;left:50%;bottom:calc(11vh + 16px);translate:-50% 0;width:min(380px,calc(100% - 32px));padding:8px 14px 10px;display:grid;gap:5px;font-size:15px}#tl h3{font:400 19px Metamorphous,serif;color:var(--moss3)}#tl p{display:flex;align-items:center;gap:8px;opacity:0;translate:0 6px;animation:tn .5s ease-out forwards}#tl p span{flex:1}#tl p .ic{width:20px;height:20px;color:var(--ink2)}#tl .bd,#tl .bd .ic{color:var(--ox)}#tl .tt{border-top:1px solid rgba(110,72,30,.45);padding-top:6px;margin-top:2px}
 @keyframes tn{to{opacity:1;translate:0 0}}
 #nx small{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(3.6vh + env(safe-area-inset-bottom,0px));font-size:13px;color:rgba(246,234,208,.7);opacity:0;transition:opacity .6s 1.5s}#nx.on small{opacity:1}
