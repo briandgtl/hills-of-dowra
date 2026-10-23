@@ -2333,13 +2333,15 @@ $('nf').onclick=async()=>{if(await ask('Start a new flock?',nfM(cnt,W,dy),'Erase
 // the start gate (lsg): once everything is loaded the card offers Start, and the title shows (with its music) only after it is pressed. A
 // browser won't start sound before a click, key press or tap, so the press is what wakes it; until then the music is held at nothing
 // even where the browser would have let it play
-const startGo=()=>{if(!lsg)return;lsg=0;AC||aud();wake();$('sg').hidden=true;$('go').hidden=false;if(sd){$('go').textContent='Continue your flock';$('ng').hidden=false}FARM||($('fnw').hidden=false);$('fn').onkeydown=e=>{if(e.key=='Enter'){e.stopPropagation();$('go').click()}};
- inP();$('st').firstElementChild.hidden=true;$('tt').hidden=false;ttl=1;renderer.domElement.style.opacity=''};$('sg').onclick=startGo;
+const showTitle=()=>{$('tt').hidden=false;ttl=1},startGo=()=>{if(!lsg)return;lsg=0;AC||aud();wake();$('sg').hidden=true;$('go').hidden=false;if(sd){$('go').textContent='Continue your flock';$('ng').hidden=false}FARM||($('fnw').hidden=false);$('fn').onkeydown=e=>{if(e.key=='Enter'){e.stopPropagation();$('go').click()}};
+ inP();$('st').firstElementChild.hidden=true;renderer.domElement.style.opacity='';
+ // no saved flock (and the primer not already read this visit): the page-by-page primer opens now, over the hills, and the title follows it
+ if(!sd&&!tuDone)tuOpen(-1,showTitle,'Continue');else showTitle()};$('sg').onclick=startGo;
 const ttGo=()=>{if(!ttl)return;ttl=0;$('tt').hidden=true;$('st').firstElementChild.hidden=false;if(FARM)$('go').focus();else $('fn').focus()};$('tt').onclick=ttGo;
 // ---- how to play: a paged primer on the menus' parchment. It opens by itself on a brand-new flock (once: the choice is remembered), from the pause
 // menu, and from the link on the start card (before the game is running). The world stays paused behind it, so the day waits. Its pages name the
 // controls for whatever the player is holding (keys, touch or pad), and on a keyboard the keycaps on them light while their key is down ----
-const TUK=SK+'-tutorial';let tuOn=0,tuP=0,tuMax=0,tuFrom=0,tuCb=null,tuSeen=0,tuNew=0;try{tuSeen=+localStorage.getItem(TUK)||0}catch(e){}
+const TUK=SK+'-tutorial';let tuOn=0,tuP=0,tuMax=0,tuFrom=0,tuCb=null,tuSeen=0,tuNew=0,tuLb='',tuDone=0;try{tuSeen=+localStorage.getItem(TUK)||0}catch(e){}
 const tuS=(kb,tc,pd)=>[kb,tc,pd][gpOn?2:mob?1:0],
  tuB=i=>`<i class="sb"><svg class="ic" aria-hidden="true"><use href="#i-${i}"/></svg></i>`,
  tuC=(...a)=>a.map(([c,t,w])=>`<kbd data-k="${c}"${w?' class="wd"':''}>${t}</kbd>`).join(''),
@@ -2371,12 +2373,12 @@ const tuS=(kb,tc,pd)=>[kb,tc,pd][gpOn?2:mob?1:0],
   $('tut').textContent=p.t;$('tus').textContent=`Step ${tuP+1} of ${n}`;$('tum').innerHTML=IC(p.ic);
   $('tpg').innerHTML=`<p class="tl">${p.lead}</p>`+(p.keys?`<div class="tks">${p.keys.join('')}</div>`:'')+(p.cards?`<div class="tcs">${p.cards.map(([i,h,t])=>`<div class="cd"><i>${IC(i)}</i><div><h3>${h}</h3><p>${t}</p></div></div>`).join('')}</div>`:'')+(p.note?`<p class="tnt">${p.note}</p>`:'');
   $('tup').innerHTML=pg.map((q,i)=>`<button data-pip="${i}" class="${i==tuP?'on':i<=tuMax?'dn':''}" aria-label="Step ${i+1}: ${q.t}"${i==tuP?' aria-current="step"':''}></button>`).join('');
-  $('tub2').disabled=!tuP;$('tun').textContent=tuP==n-1?(tuCb?'Start herding':'Done'):'Next';$('tuc').scrollTop=0},
+  $('tub2').disabled=!tuP;$('tun').textContent=tuP==n-1?tuLb:'Next';$('tuc').scrollTop=0},
  tuGo=d=>{const n=TUP().length;if(d>0&&tuP>=n-1)return tuClose();tuP=cl(tuP+d,0,n-1);tuR()},
- tuOpen=(from=0,cb=null)=>{if(tuOn)return;tuFrom=from;tuCb=cb;tuP=tuMax=0;tuOn=1;tuR();if(run)sho(4);else $('tu').hidden=false;
+ tuOpen=(from=0,cb=null,lb='')=>{if(tuOn)return;tuFrom=from;tuCb=cb;tuLb=lb||(cb?'Start herding':'Done');tuP=tuMax=0;tuOn=1;tuR();if(run)sho(4);else $('tu').hidden=false;
   // a pad lands on its button; a keyboard or mouse leaves the panel itself focused, so Space stays free for the crook's keycap
   document.body.classList.contains('pd')?$('tun').focus():$('tu').firstElementChild.focus()},
- tuClose=()=>{if(!tuOn)return;tuOn=0;tuSeen=1;try{localStorage.setItem(TUK,1)}catch(e){}
+ tuClose=()=>{if(!tuOn)return;tuOn=0;tuSeen=tuDone=1;try{localStorage.setItem(TUK,1)}catch(e){}
   if(run)sho(tuFrom==2?2:0);else{$('tu').hidden=true;(lsg?$('sg'):$('htp')).focus()}
   const cb=tuCb;tuCb=null;cb&&cb()},
  tuKey=e=>{const c=e.code,el=document.activeElement,onBtn=el&&el.tagName=='BUTTON'&&$('tu').contains(el)&&el.matches(':focus-visible');if(e.metaKey||e.ctrlKey||e.altKey)return;
@@ -2390,7 +2392,7 @@ const tuS=(kb,tc,pd)=>[kb,tc,pd][gpOn?2:mob?1:0],
   if(c=='Space'||c.startsWith('Arrow'))e.preventDefault();
   for(const k of $('tu').querySelectorAll(`kbd[data-k="${c}"]`))k.classList.add('on')},
  tuUp=e=>{if(e.code=='Space'){const a=document.activeElement;a&&a.tagName=='BUTTON'&&a.matches(':focus-visible')||e.preventDefault()}for(const k of $('tu').querySelectorAll(`kbd[data-k="${e.code}"]`))k.classList.remove('on')},
- // what a new flock hears at the start, after the primer: the usual opening hint, or one of the caller's (m, with its icon ic)
+ // what a new flock hears at the start, after the primer (shown after Start for a first-timer, or here for a new flock): the usual opening hint, or one of the caller's (m, with its icon ic)
  intro=(m,ic)=>{toast(m||`Your flock slipped the gate! Swing your crook ${gpOn?`with ${gpG('a')}`:mob?'(the round button)':'with <b>Space</b>'} to gather sheep, then walk them home to the pen.`,'',ic||'sheep');setTimeout(()=>toast('Rustling bushes hide sheep. Walk right up to one to flush it out.','','leaf'),5500);setTimeout(()=>toast('A day lasts 12 minutes. Get the flock home before the sun goes down.','','dawn'),11000)};
 $('htp').onclick=()=>tuOpen(-1);$('phw').onclick=()=>tuOpen(2);$('tux').onclick=tuClose;$('tun').onclick=()=>tuGo(1);$('tub2').onclick=()=>tuGo(-1);
 $('tup').onclick=e=>{const b=e.target.closest('button');if(!b)return;tuP=+b.dataset.pip;tuR();$('tun').focus()};
