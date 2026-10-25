@@ -11,6 +11,8 @@ What it embeds:
     the import map and the game's import() calls, then following each module's own relative imports. They are fetched once from
     jsDelivr (the same URLs the game uses) and cached in tools/cache/, so later builds need no connection.
   * the Google Fonts the game asks for (Latin and Latin Extended), as base64 @font-face rules.
+  * the screenshots in tutorial/ that the How to play pages show, as data: URIs in window.PICS (the page looks each picture up there before
+    falling back to the tutorial/ folder).
 
 How the modules are served: the file carries them as base64 and, before the game starts, turns each into a blob: URL and registers an
 import map pointing the game's module names at those. Browsers refuse to import ordinary files from file:// pages; blob: URLs are not
@@ -141,6 +143,17 @@ def build_fonts(html):
     return "<style>\n" + "\n".join(faces) + "\n</style>\n"
 
 
+# --- the tutorial pictures -----------------------------------------------------------------------------------------------------
+
+def build_pictures():
+    """<script> setting window.PICS = {name: data URI} for every image in tutorial/."""
+    d = ROOT / "tutorial"
+    pics = {}
+    for f in sorted(d.glob("*.jpg")) if d.is_dir() else []:
+        pics[f.stem] = "data:image/jpeg;base64," + b64(f.read_bytes())
+    return "<script>window.PICS=" + json.dumps(pics) + "</script>\n", sorted(pics)
+
+
 # --- the page -----------------------------------------------------------------------------------------------------------------
 
 LOADER = """<script>
@@ -161,7 +174,8 @@ def main():
     loader = LOADER % (json.dumps([b64(mods[u].encode("utf-8")) for u in order]), json.dumps(kmap))
 
     # 1. the import map becomes the loader
-    html, n = re.subn(r'<script type="importmap">.*?</script>', lambda _: loader, html, count=1, flags=re.S)
+    pics, names = build_pictures()
+    html, n = re.subn(r'<script type="importmap">.*?</script>', lambda _: pics + loader, html, count=1, flags=re.S)
     assert n == 1
     # 2. the web fonts become embedded ones
     fonts = build_fonts(html)
@@ -175,7 +189,7 @@ def main():
 
     left = sorted(set(re.findall(r"https?://(?!www\.w3\.org)[^\s\"'<>)]+", re.sub(r"<script>\n// the game's libraries.*?</script>", "", html, flags=re.S))))
     OUT.write_text(html, encoding="utf-8")
-    print(f"wrote {OUT.name}: {OUT.stat().st_size / 1e6:.2f} MB, {len(order)} modules, {len(kmap)} module names")
+    print(f"wrote {OUT.name}: {OUT.stat().st_size / 1e6:.2f} MB, {len(order)} modules, {len(kmap)} module names, {len(names)} pictures")
     for k in sorted(kmap):
         print("  ", k)
     # every http(s) address still in the file should be one the game never fetches (comments, SVG namespaces)

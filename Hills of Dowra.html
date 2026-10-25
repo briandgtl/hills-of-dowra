@@ -200,7 +200,7 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
 @media (max-height:700px){.ci small{display:none}.ci{padding:6px 6px 5px;gap:2px}.kc{min-height:28px}}
 /* how to play: a paged primer on the menus' parchment. The medallion, title and close cross are pinned above the page and the dots and buttons
    below it (as in the farm shop), so the panel keeps one size from page to page. Keycaps on it light while their key is held */
-#tu>.pn{width:min(680px,100%);height:min(640px,calc(100% - 8px));overflow:hidden;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;padding:14px 22px 18px}
+#tu>.pn{width:min(680px,100%);height:min(740px,calc(100% - 8px));overflow:hidden;grid-template-rows:auto minmax(0,1fr) auto;gap:12px;padding:14px 22px 18px}
 #tu>.pn:focus{outline:0}
 .tuh{display:flex;align-items:center;gap:14px}
 .tuh>div{flex:1;display:grid;gap:1px;min-width:0}
@@ -208,10 +208,10 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
 .tum .ic{width:30px;height:30px;filter:drop-shadow(0 1px 0 #1c1208)}
 .tus{font:400 12.5px Metamorphous,Georgia,serif;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
 #tut{font-size:29px;text-wrap:balance}
-.tpg{display:grid;gap:12px;align-content:start;animation:pin .26s cubic-bezier(.2,.8,.3,1)}
+.tpg{display:grid;gap:10px;align-content:start;animation:pin .26s cubic-bezier(.2,.8,.3,1)}
 .tl{font-size:17px;line-height:1.4;color:var(--ink2);text-wrap:pretty}
 .tl b,.tcs p b,.tnt b,.tk small b{font:400 1.04em Metamorphous,Georgia,serif;color:var(--ink)}
-.tcs{display:grid;gap:9px}
+.tcs{display:grid;gap:8px}
 .tks{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
 .tk{display:flex;align-items:center;gap:11px;padding:7px 13px 7px 11px;border-radius:5px;background:rgba(255,249,228,.5);border:1px solid rgba(112,74,30,.5);box-shadow:inset 0 0 0 3px rgba(255,250,235,.35)}
 .tk .kc{min-height:0}
@@ -220,6 +220,21 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
 .tk small{font-size:13px;color:var(--ink2);line-height:1.15}
 .tk kbd.on,.ci kbd.on{translate:0 2px;color:var(--ink);background:linear-gradient(#f5e1a4,#d9b057 55%,#b98a2e);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 0 1px #5d3c10,0 0 10px rgba(214,166,64,.8)}
 .tnt{padding:8px 12px;border-radius:5px;font-size:14.5px;line-height:1.35;color:var(--ink2);background:rgba(112,74,30,.1);border:1px dashed rgba(112,74,30,.45)}
+/* the pictures: a screenshot framed like a print on the parchment (a pale mat, a dark keyline), its caption beneath. A ring points at something to
+   look for; a card's preview sits at its right, and drops under its words on a narrow panel. Both are left out on a short screen */
+.tlf{display:grid;gap:12px}
+@media (min-width:640px){.tlf{grid-template-columns:minmax(0,.74fr) minmax(0,1.46fr);gap:16px;align-items:center}}
+.tfig{display:grid;gap:6px;margin:0}
+.tfi{position:relative;width:fit-content;max-width:100%;margin:0 auto;padding:4px;border-radius:6px;background:rgba(255,249,228,.55);border:1px solid rgba(112,74,30,.55);box-shadow:inset 0 0 0 2px rgba(255,250,235,.35),0 3px 8px rgba(40,22,4,.16)}
+.tfi img,.cdi img{display:block;width:100%;height:auto;background:#cbbb8c}
+.tfi img{width:auto;max-width:100%;border-radius:3px;outline:1px solid rgba(60,35,8,.6);outline-offset:-1px}
+.tfig figcaption{font-size:13.5px;line-height:1.3;color:var(--ink2);text-align:center;text-wrap:balance}
+.pin{position:absolute;translate:-50% -50%;aspect-ratio:1;border-radius:50%;border:2.5px solid var(--gold3);box-shadow:0 0 0 2px rgba(36,24,12,.72),0 0 12px 2px rgba(243,213,138,.7),inset 0 0 8px rgba(243,213,138,.35);pointer-events:none}
+.cdi{width:156px;flex:none;align-self:center;padding:3px;border-radius:5px;background:rgba(255,249,228,.55);border:1px solid rgba(112,74,30,.55);box-shadow:0 2px 5px rgba(40,22,4,.22)}
+.cdi img{border-radius:3px;outline:1px solid rgba(60,35,8,.55);outline-offset:-1px}
+#tu .cd{padding:8px 11px;gap:11px}
+#tu .cd>i{width:46px;height:46px}#tu .cd>i .ic{width:24px;height:24px}
+#tu .cd h3{font-size:15px}#tu .cd p{font-size:13px;line-height:1.3}
 .tuf{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .tup{display:flex;flex-wrap:wrap;gap:2px}
 .tup button{position:relative;width:24px;height:26px;display:grid;place-items:center}
@@ -230,8 +245,8 @@ kbd{margin-right:6px;padding:1px 7px 2px;border-radius:4px;font:400 12px Metamor
 .pb.tn{display:flex;gap:10px}
 .pb.tn button{min-width:104px}
 .pb.tn button:disabled{color:var(--mut);background:rgba(120,90,40,.16);border-color:rgba(93,60,16,.3);box-shadow:none;cursor:default;translate:none}
-@media (max-width:560px){#tu>.pn{padding:12px 14px 14px;gap:9px}.tum{width:46px;height:46px}.tum .ic{width:25px;height:25px}#tut{font-size:23px}.tl{font-size:15.5px}.tcs{gap:7px}#tu .cd{padding:8px;gap:9px}#tu .cd>i{width:42px;height:42px}#tu .cd>i .ic{width:22px;height:22px}.tuf{flex-wrap:wrap;justify-content:center;gap:6px 12px}.tup{order:-1;flex:1 0 100%;justify-content:center;flex-wrap:nowrap}.pb.tn{flex:1}.pb.tn button{flex:1;min-width:0;padding-inline:12px}}
-@media (max-height:520px){#tu>.pn{height:calc(100% - 8px);gap:7px;padding:10px 16px 12px}.tum{display:none}#tut{font-size:22px}.tl{font-size:14.5px}.tcs{gap:6px}#tu .cd{padding:6px 9px;gap:9px}#tu .cd>i{width:36px;height:36px}#tu .cd>i .ic{width:19px;height:19px}#tu .cd p{font-size:12.5px}.tk{padding:5px 10px}.tnt{font-size:13px;padding:5px 9px}.tup button{width:19px}}
+@media (max-width:560px){#tu>.pn{padding:12px 14px 14px;gap:9px}.tum{width:46px;height:46px}.tum .ic{width:25px;height:25px}#tut{font-size:23px}.tl{font-size:15.5px}.tcs{gap:7px}#tu .cd{padding:8px;gap:9px}#tu .cd>i{width:42px;height:42px}#tu .cd>i .ic{width:22px;height:22px}.tuf{flex-wrap:wrap;justify-content:center;gap:6px 12px}#tu .cd{flex-wrap:wrap}#tu .cd>div{flex:1 1 150px;min-width:0}.cdi{order:3;width:min(100%,184px);margin:2px auto 0}.tup{order:-1;flex:1 0 100%;justify-content:center;flex-wrap:nowrap}.pb.tn{flex:1}.pb.tn button{flex:1;min-width:0;padding-inline:12px}}
+@media (max-height:520px){.tfig,.cdi{display:none}#tu>.pn{height:calc(100% - 8px);gap:7px;padding:10px 16px 12px}.tum{display:none}#tut{font-size:22px}.tl{font-size:14.5px}.tcs{gap:6px}#tu .cd{padding:6px 9px;gap:9px}#tu .cd>i{width:36px;height:36px}#tu .cd>i .ic{width:19px;height:19px}#tu .cd p{font-size:12.5px}.tk{padding:5px 10px}.tnt{font-size:13px;padding:5px 9px}.tup button{width:19px}}
 @media (max-height:520px) and (min-width:560px){.tcs{grid-template-columns:repeat(2,minmax(0,1fr))}.tpg{gap:8px}}
 @media (pointer:coarse){.tup button{width:30px;height:40px}.tup button::after{inset:-2px 0}}
 /* the loading bar: a gilt fill in the parchment groove the happiness bar uses, a triskele medallion (the title divider's) riding its
@@ -2345,30 +2360,51 @@ const tuS=(kb,tc,pd)=>[kb,tc,pd][gpOn?2:mob?1:0],
  tuB=i=>`<i class="sb"><svg class="ic" aria-hidden="true"><use href="#i-${i}"/></svg></i>`,
  tuC=(...a)=>a.map(([c,t,w])=>`<kbd data-k="${c}"${w?' class="wd"':''}>${t}</kbd>`).join(''),
  tuK=(k,n,h='')=>`<div class="tk"><span class="kc">${k}</span><span class="kn"><b>${n}</b>${h?`<small>${h}</small>`:''}</span></div>`,
+ // screenshots of the real game for the primer's pages (tutorial/*.jpg): FG, a framed banner under the page's lead (w x h pixels, a caption, and
+ // rings [x%, y%, width%] of the picture); IMG, a small preview that sits in a card
+ FG={welcome:{s:'welcome',w:800,h:330,alt:'The farm at the start of a day: the cottage, the round pen with the shepherd in it, and sheep scattered over the meadow.',cap:'Your farm at the start of a day: the cottage, the pen, and a flock scattered over the hills.'},
+  walk:{s:'walk',w:800,h:300,alt:'The shepherd walking across the hills, with the gilt home arrow and a distance of 69 metres under the badge.',cap:'Away from home, the gilt arrow under the badge points back to the pen and counts the metres.',pins:[[13.4,82.3,11.5]]},
+  crook:{s:'crook',w:800,h:305,alt:'The shepherd with sheep gathered round him and pink hearts over the sheep he has just called with his crook.',cap:'One swing and the sheep in front of you are called: pink hearts mark each one that now follows.'},
+  home:{s:'home',w:800,h:388,alt:'Sheep leaping the pen fence with sparkles while others stand inside; the badge shows the flock home and the wool earned.',cap:'Followers hop the fence into the pen. The badge counts the flock home and the wool earned.'},
+  sundown:{s:'sundown',w:800,h:360,alt:'The pen at dusk with lit cottage windows, long shadows, the sun low on the clock and a notice that the wolves are howling.',cap:'A minute before sundown: the cottage windows glow and the wolves start to howl.'},
+  happy:{s:'happy',w:800,h:340,alt:'The pen with hay bales, a red-roofed shelter and a water trough, ten sheep inside, and the badge reading 93 percent.',cap:'A happy flock: hay, a shelter and a trough in the pen, and the badge reads 93%.',pins:[[17.9,44.1,8.6]]}},
+ IMG={shop:{s:'shop',w:480,h:300,alt:'The farm shop menu: upgrade cards for a longer crook, a bigger pen, a water trough and hay bales, each with a level bar and a price in wool.'},
+  cottage:{s:'cottage',w:480,h:300,alt:'The cottage menu beside the painted cottage, with swatches for the walls and the front door.'}},
+ // a picture's address: the tutorial/ folder beside this page, unless the offline build has embedded them (window.PICS, see tools/make-offline.py)
+ tuU=s=>window.PICS?.[s]||`tutorial/${s}.jpg`,
+ tuI=m=>`<img src="${tuU(m.s)}" width="${m.w}" height="${m.h}" alt="${m.alt}" decoding="async" draggable="false">`,
+ tuF=f=>`<figure class="tfig"><div class="tfi">${tuI(f)}${(f.pins||[]).map(([x,y,d])=>`<i class="pin" style="left:${x}%;top:${y}%;width:${d}%"></i>`).join('')}</div><figcaption>${f.cap}</figcaption></figure>`,
  TUP=()=>[
  {ic:'shamrock',t:'Welcome, shepherd',lead:"Your flock has slipped the gate and scattered across the Cavan hills. Gather them with your crook, walk them home to the pen, and keep them happy once they're back.",
+  fig:FG.welcome,
   cards:[['sheep','Find the flock','Sheep are out on the hills. Some hide in rustling bushes: walk right up to one to flush it out.'],['dawn','Twelve minutes of daylight','A day lasts <b>12 minutes</b>. When the sun goes down the wolves come out, so get the flock home first.'],['knot','Wool is your reward','Every sheep you bring home pays in wool. Spend it on the farm, the cottage and your crook.']]},
  {ic:'boot',t:'Walk the hills',lead:tuS('Hold <b>W A S D</b> or the arrow keys to walk, and scroll the wheel to zoom in and out.','<b>Drag</b> anywhere on the screen to walk. A little stick appears under your finger and the shepherd goes the way you push it.','Push the <b>left stick</b>, or press the D-pad, to walk. The <b>right stick</b> zooms in and out.'),
+  fig:FG.walk,
   cards:[['fence','Home is the pen','The gilt arrow under the clock points back to the pen at the farm, and tells you how far it is.'],['fair','The weather turns','Sun, wind, rain and fog drift over the hills as the day goes on. Fog hides sheep, so keep the flock close.']],
   keys:[tuK(tuS(tuC(['KeyW','W'],['KeyA','A'],['KeyS','S'],['KeyD','D']),'<kbd>Drag</kbd>',gpG('ls')),'Walk',tuS('or the arrow keys','anywhere on the screen','or the D-pad')),tuS(tuK('<kbd>Scroll</kbd>','Zoom','in and out'),'',tuK(gpG('rs'),'Zoom','right stick'))]},
  {ic:'crook',t:'Call the flock',lead:'Loose sheep bolt when you get close. <b>Swing your crook</b> to call them: every sheep in front of you, within its reach, will follow you.',
+  fig:FG.crook,
   cards:[['sheep','Face them first','The crook sweeps an arc in front of you and reaches <b>5 metres</b>. A longer crook from the farm shop reaches further.'],['leaf','Bushes hide sheep','Rustling bushes hide sheep, and now and then a rare black one that pays double wool. Walk right up to flush it out.'],['shamrock','Keep them following','Called sheep trot after you across the hills. Walk on, and they keep up.']],
   keys:[tuK(tuS(tuC(['Space','Space',1]),tuB('crook'),gpG('a')),'Swing the crook',tuS('call the sheep','the round button','call the sheep'))]},
  {ic:'fence',t:'Bring them home',lead:'Walk your followers into the pen at the farm. They hop the fence by themselves and are counted home.',
+  fig:FG.home,
   cards:[['knot','Paid in wool','Each sheep penned pays <b>3 wool</b> (a black sheep, <b>6</b>). Bring home 10 in a day and you earn a bonus of 5 more.'],['sheep','Read the badge','The badge in the corner shows the weather, how many sheep are home, your wool and the flock\'s mood.'],['fence','Room to roam','A pen holds <b>30 sheep</b> before they feel crowded. The Bigger Pen upgrade makes more room.']]},
  {ic:'dusk',t:'Sundown and night',lead:'The golden sun on the clock shows how much daylight is left. When it sets, the night begins.',
+  fig:FG.sundown,
   cards:[['wolf','The wolves howl','With a minute to go the wolves start to howl on the hills. Hurry the last sheep home.'],['moon','Night falls','You turn in and count sheep. Any still out on the hills bolt into the dark, and the day\'s gathering bonus is paid as you drift off.'],['dawn','At dawn','Each sheep that slept in the pen gives a little more wool. A few may slip out in the night: a sheepdog keeps that low.']]},
  {ic:'smile',t:'Keep them happy',lead:'The bar on the badge is the flock\'s mood. Happy sheep stay put; unhappy ones wander out.',
+  fig:FG.happy,
   cards:[['smile','What cheers them','A Water Trough, Hay Bales, a Sheep Shelter, a Cottage Garden and a Sheepdog all lift their spirits. So does standing in the pen with them, and a sunny day.'],['frown','What upsets them','A crowded pen, and grey, wet or foggy weather (a shelter softens it). Below <b>20%</b>, penned sheep start slipping out, even by day.']]},
  {ic:'cottage',t:'Spend your wool',lead:'Open the farm shop or the cottage whenever you like. The day waits while you browse.',
-  cards:[['cottage','The farm shop','A longer crook, a bigger pen, comforts for the flock, wellies for speed and, at last, a sheepdog who fetches strays from 15 metres.'],['brush','The cottage','Paint the cottage and dress the shepherd, 10 wool a look. Clothes turn up in shimmering trunks at old farms, graveyards and ruins.'],['break','Gates and trunks','Field gates are shut and solid: a swing of the crook opens one, and knocks open a trunk.']],
+  cards:[['cottage','The farm shop','A longer crook, a bigger pen, comforts for the flock, wellies for speed and, at last, a sheepdog who fetches strays from 15 metres.',IMG.shop],['brush','The cottage','Paint the cottage and dress the shepherd, 10 wool a look. Clothes turn up in shimmering trunks at old farms, graveyards and ruins.',IMG.cottage],['break','Gates and trunks','Field gates are shut and solid: a swing of the crook opens one, and knocks open a trunk.']],
   keys:[tuK(tuS(tuC(['KeyF','F']),tuB('cottage'),gpG('y')),'Farm shop'),tuK(tuS(tuC(['KeyC','C']),tuB('brush'),gpG('x')),'Cottage'),tuK(tuS(tuC(['Escape','Esc']),tuB('pause'),gpG('st')),'Pause')],
   note:tuS('<b>M</b> switches the music and <b>R</b> the retro look.','The pause menu has the music and the retro look.','The pause menu has the music and the retro look.')+' The game saves as you go, and you can read this again from the pause menu.'}],
  tuR=()=>{const pg=TUP(),n=pg.length,p=pg[tuP];tuMax=max(tuMax,tuP);
   $('tut').textContent=p.t;$('tus').textContent=`Step ${tuP+1} of ${n}`;$('tum').innerHTML=IC(p.ic);
-  $('tpg').innerHTML=`<p class="tl">${p.lead}</p>`+(p.keys?`<div class="tks">${p.keys.join('')}</div>`:'')+(p.cards?`<div class="tcs">${p.cards.map(([i,h,t])=>`<div class="cd"><i>${IC(i)}</i><div><h3>${h}</h3><p>${t}</p></div></div>`).join('')}</div>`:'')+(p.note?`<p class="tnt">${p.note}</p>`:'');
+  $('tpg').innerHTML=(p.fig?`<div class="tlf"><p class="tl">${p.lead}</p>${tuF(p.fig)}</div>`:`<p class="tl">${p.lead}</p>`)+(p.keys?`<div class="tks">${p.keys.join('')}</div>`:'')+(p.cards?`<div class="tcs">${p.cards.map(([i,h,t,m])=>`<div class="cd"><i>${IC(i)}</i><div><h3>${h}</h3><p>${t}</p></div>${m?`<span class="cdi">${tuI(m)}</span>`:''}</div>`).join('')}</div>`:'')+(p.note?`<p class="tnt">${p.note}</p>`:'');
   $('tup').innerHTML=pg.map((q,i)=>`<button data-pip="${i}" class="${i==tuP?'on':i<=tuMax?'dn':''}" aria-label="Step ${i+1}: ${q.t}"${i==tuP?' aria-current="step"':''}></button>`).join('');
-  $('tub2').disabled=!tuP;$('tun').textContent=tuP==n-1?tuLb:'Next';$('tuc').scrollTop=0},
+  $('tub2').disabled=!tuP;$('tun').textContent=tuP==n-1?tuLb:'Next';$('tuc').scrollTop=0;
+  const nx=pg[tuP+1];nx&&[nx.fig,...(nx.cards||[]).map(c=>c[3])].forEach(m=>{m&&(new Image().src=tuU(m.s))})},
  tuGo=d=>{const n=TUP().length;if(d>0&&tuP>=n-1)return tuClose();tuP=cl(tuP+d,0,n-1);tuR()},
  tuOpen=(from=0,cb=null,lb='')=>{if(tuOn)return;tuFrom=from;tuCb=cb;tuLb=lb||(cb?'Start herding':'Done');tuP=tuMax=0;tuOn=1;tuR();if(run)sho(4);else $('tu').hidden=false;
   // a pad lands on its button; a keyboard or mouse leaves the panel itself focused, so Space stays free for the crook's keycap
@@ -2392,6 +2428,7 @@ const tuS=(kb,tc,pd)=>[kb,tc,pd][gpOn?2:mob?1:0],
 $('htp').onclick=()=>tuOpen(-1);$('phw').onclick=()=>tuOpen(2);$('tux').onclick=tuClose;$('tun').onclick=()=>tuGo(1);$('tub2').onclick=()=>tuGo(-1);
 $('tup').onclick=e=>{const b=e.target.closest('button');if(!b)return;tuP=+b.dataset.pip;tuR();$('tun').focus()};
 addEventListener('keyup',e=>{tuOn&&tuUp(e)});
+if(!sd&&!tuSeen)new Image().src=tuU('welcome');
 onkeydown=e=>{if(tuOn){tuKey(e);return}if(lsg){if(!e.metaKey&&!e.ctrlKey&&!e.altKey&&e.target.id!='htp'&&(e.code=='Enter'||e.code=='NumpadEnter'||e.code=='Space')){e.preventDefault();startGo()}return}if(ttl){if(!e.metaKey&&!e.ctrlKey&&!e.altKey){e.preventDefault();ttGo()}return}if($('al').open||e.target.closest?.('input'))return;if(nph){nph==2&&nsk();return}const c=e.code;K[c]=1;if(c=='Space'||c.startsWith('Arrow')){e.preventDefault();document.activeElement?.blur?.()}if(e.repeat)return;c=='Space'&&swing();c=='KeyF'&&sho(ov==1?0:1);c=='KeyC'&&sho(ov==3?0:3);(c=='Escape'||c=='KeyP')&&sho(ov?0:2);c=='KeyM'&&tgm();c=='KeyR'&&t32()};onkeyup=e=>K[e.code]=0;
 // leaving the window (another app, another tab) pauses, so the day never runs down while the player is away
 onblur=()=>{for(const k in K)K[k]=0;run&&!ov&&!nph&&sho(2)};
