@@ -1394,8 +1394,13 @@ shed.position.set(0,0,5.4);part(mg([...[[-2.3,-1.4],[2.3,-1.4],[-2.3,1.4],[2.3,1
 const LGS=new THREE.Sprite(new THREE.SpriteNodeMaterial({map:DOT,color:0xffc45e,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.7,fog:false}));LGS.scale.setScalar(2.4);LGS.position.set(-2.35,2.75,3.55);cot.add(LGS);
 // farm collider: cottage body, water barrel, turf stack, plus whichever upgrades are built
 const farmCol=()=>{const c=[B(11,4.3,6).rotateY(PI/4).translate(-21,2.15,-20),Cy(.62,.62,1.6,10).translate(...(([x,z])=>[x,.8,z])(cw(6.1,2.2))),B(3.3,1.2,1.4).rotateY(PI/4).translate(...(([x,z])=>[x,.6,z])(cw(7.6,-2.2))),B(2.2,1,.6).rotateY(PI/4).translate(...(([x,z])=>[x,.5,z])(cw(-3.8,3.42))),B(4.95,1.2,.8).rotateY(-atan2(.8,4.8)).translate(-4.8,.6,6.12).rotateY(PI/4).translate(-21,0,-20),B(7.3,1.2,.8).rotateY(-atan2(-.8,7.2)).translate(3.6,.6,6.12).rotateY(PI/4).translate(-21,0,-20),Cy(.96,1.08,7,8).translate(...(([x,z])=>[x,2.5,z])(cw(-12.6,-4.2)))];
- L.trough&&c.push(B(2.95,1,1.25).rotateY(.4).translate(4.6,.5,-2.4));L.hay&&c.push(Cy(1.75,1.75,1.6,10).translate(-4.8,.8,-2.9),B(3.6,1.8,.3).translate(-4.75,.9,-1.2));
- L.shed&&c.push(B(5,2.6,.3).translate(0,1.3,3.9),...[[-2.3,4],[2.3,4],[-2.3,6.8],[2.3,6.8]].map(([x,z])=>Cy(.2,.2,3,6).translate(x,1.5,z)));FARMC&&FARMC.g.dispose();FARMC=mkCol(c);colList()};
+ // the pen's furniture is solid, and is built in each object's own space from the measures of its model, then carried by the object's transform:
+ // the trough's box, each bale of the hay (a box along its axis, yawed as it lies) and the rack in front of them, the shelter's back wall and its four
+ // posts. So the colliders sit on what is drawn, and grow with it at level 2 (apply() draws those three at 1.2x, which a fixed collider never did)
+ const own=(o,gs)=>{o.updateMatrixWorld(true);return gs.map(g=>g.applyMatrix4(o.matrixWorld))};
+ L.trough&&c.push(...own(trough,[B(2.86,.92,1.18).translate(0,.46,0)]));
+ L.hay&&c.push(...own(hay,[...[[-.8,0],[.8,.3],[0,-1]].map(([x,z])=>B(1.3,1.5,1.5).rotateY(x).translate(x,.75,z)),B(3.6,1.8,.3).translate(.05,.9,1.4)]));
+ L.shed&&c.push(...own(shed,[B(4.95,2.6,.3).translate(0,1.3,-1.5),...[[-2.3,-1.4],[2.3,-1.4],[-2.3,1.4],[2.3,1.4]].map(([x,z])=>Cy(.2,.2,3,6).translate(x,1.5,z))]));FARMC&&FARMC.g.dispose();FARMC=mkCol(c);colList()};
 
 // the pen: fence, swinging gate, its collider and its (expanded) deposit box
 let fen=null;const PG=mg([[Cy(.13,.16,1.5,16),0x7b5733],[Cy(0,.14,.2,16).translate(0,.85,0),0x6b4a2b]]),GTE=mg([...[.3,.62,.94,1.26].map(y=>[B(.08,.1,2.2).translate(0,y,0),0x8f7250]),[B(.09,1.1,.1).translate(0,.78,1.05),0x8f7250],[B(.09,1.1,.1).translate(0,.78,-1.05),0x8f7250],[B(.07,.07,2.35).rotateX(-.52).translate(0,.78,0),0x7a5f41],[B(.1,.14,.14).translate(0,1.05,-1.05),0x3b3b3b]]),GA=atan2(-20,-21),
