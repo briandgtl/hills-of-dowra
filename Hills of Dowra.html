@@ -443,7 +443,7 @@ ldp(1,'Waking the hills…');
 // adds three vertex buffers (matrices, last frame's for motion vectors, colours), so iaOk keeps it to geometry that stays within
 // WebGPU's eight. Storage buffers would do the same on WebGPU but leave static data unseen on the WebGL fallback
 {const f=THREE.NodeBuilder.prototype.getUniformBufferLimit;THREE.NodeBuilder.prototype.getUniformBufferLimit=function(){return this.object?.userData?.ia?0:f.call(this)}}
-const {Fn,If,Loop,uniform,uniformArray,float,int,uint,vec2,vec3,vec4,color,mix,smoothstep,step,select,sign,atan,sin:Sin,cos:Cos,abs:Abs,max:Max,min:Min,pow:Pow,exp:Exp,fract:Fract,length:Len,dot,cross,normalize,reflect,dFdx,dFdy,positionGeometry,positionLocal,positionWorld,positionView,positionViewDirection,normalView,normalGeometry,cameraPosition,cameraViewMatrix,attribute,instanceIndex,instancedArray,instancedBufferAttribute,instancedDynamicBufferAttribute,vertexStage,varyingProperty,transformNormalToView,texture,uv,screenUV,pass,mrt,output,velocity,screenSize,convertToTexture,renderOutput,luminance,getViewPosition,getScreenPosition,BRDF_GGX,BRDF_Lambert,roughness}=TSL,{diffuseContribution,specularColorBlended}=THREE.TSL;
+const {Fn,If,Loop,uniform,uniformArray,float,int,uint,vec2,vec3,vec4,color,mix,smoothstep,step,select,sign,atan,sin:Sin,cos:Cos,abs:Abs,max:Max,min:Min,pow:Pow,exp:Exp,fract:Fract,length:Len,dot,cross,normalize,reflect,dFdx,dFdy,positionGeometry,positionLocal,positionWorld,positionView,positionViewDirection,normalView,normalGeometry,cameraPosition,cameraViewMatrix,attribute,instanceIndex,instancedArray,instancedBufferAttribute,instancedDynamicBufferAttribute,vertexStage,varyingProperty,transformNormalToView,texture,uv,screenUV,screenCoordinate,pass,mrt,output,velocity,screenSize,convertToTexture,renderOutput,luminance,getViewPosition,getScreenPosition,BRDF_GGX,BRDF_Lambert,roughness}=TSL,{diffuseContribution,specularColorBlended}=THREE.TSL;
 const {PI,sin,cos,abs,min,max,hypot,floor,sqrt,atan2,random:R}=Math,TAU=PI*2,cl=(v,a,b)=>v<a?a:v>b?b:v,sm=(a,b,v)=>(v=cl((v-a)/(b-a),0,1),v*v*(3-2*v)),wa=a=>atan2(sin(a),cos(a));
 const QS=new URLSearchParams(location.search),mob=QS.has('mobile')||matchMedia('(pointer:coarse)').matches;mob&&document.body.classList.add('mob');
 const V=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z); // build-time only
@@ -487,7 +487,7 @@ flatN=()=>{const n=normalize(cross(dFdx(positionView),dFdy(positionView)));retur
 // ---- shared uniforms (weather, sky, wind, farm masks) ----
 const U={t:uniform(0),dt:uniform(0),co:uniform(new THREE.Vector2()),cov:uniform(.45),wet:uniform(0),sv:uniform(1),sg:uniform(.8),wp:uniform(0),wind:uniform(1),wd:uniform(new THREE.Vector2(.85,.53)),rn:uniform(0),sd:uniform(V(0,1,0)),zen:uniform(new THREE.Color()),hor:uniform(new THREE.Color()),gnd:uniform(new THREE.Color()),fogA:uniform(.0015),fogB:uniform(.001),fogC:uniform(new THREE.Color(.8,.88,.92)),disc:uniform(1),
 penR:uniform(9),gate:uniform(new THREE.Vector2(-6.5,-6.2)),trough:uniform(0),hay:uniform(0),shed:uniform(0),gF:uniform(new THREE.Vector2()),
-sunCol:uniform(new THREE.Color(1,.95,.85)),mieG:uniform(.62),rays:uniform(.35),aoAmt:uniform(.65),focus:uniform(60),ret:uniform(0),hf:uniform(0),fgp:uniform(new THREE.Vector3()),focal:uniform(110),bokeh:uniform(mob?1.7:2.4),tsW:uniform(.1),tsR:uniform(.32),
+sunCol:uniform(new THREE.Color(1,.95,.85)),mieG:uniform(.62),rays:uniform(.35),aoAmt:uniform(.65),focus:uniform(60),ret:uniform(0),hf:uniform(0),fgp:uniform(new THREE.Vector3()),seeC:uniform(new THREE.Vector3()),seeT:uniform(new THREE.Vector3()),seeR:uniform(6),seeK:uniform(0),focal:uniform(110),bokeh:uniform(mob?1.7:2.4),tsW:uniform(.1),tsR:uniform(.32),
 stS:uniform(.55),stH:uniform(.5),stShadow:uniform(new THREE.Color(.16,.34,.46)),stHigh:uniform(new THREE.Color(1,.8,.5)),sat:uniform(1.12),
 rt:uniform(0),pud:uniform(0),roofY:uniform(0),rc:uniform(V()),rwv:uniform(new THREE.Vector2()),rcol:uniform(new THREE.Color(.62,.68,.74)),win:uniform(0),fill:uniform(new THREE.Color(.5,.55,.65))};
 const tcA=color(0x3d7a2c),tcB=color(0x80ad48),tcC=color(0xd9d06a),tcD=color(0xdcc98f),tcP=color(0x8a6a43),tcY=color(0xb8a274),
@@ -695,6 +695,19 @@ const BTX=(()=>{const c=document.createElement('canvas');c.width=c.height=256;co
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=min(4,renderer.getMaxAnisotropy());return t})(),
 VB=new BotwMat({vertexColors:true,map:BTX,alphaTest:.5,side:THREE.DoubleSide,roughness:.9},{key:'leaf',wrap:.55,trans:.45,spec:.15,toon:.75,rim:.25});
 VB.positionNode=VL.positionNode;VB.maskNode=VL.maskNode;
+// the trees go see-through where they stand between the camera and the shepherd or the sheep round him: a tree fragment above his chest
+// whose view ray comes down inside a disc of ground round him (U.seeR wide, solid to half of it) thins to a stipple of the screen's own
+// noise, so he and the flock he is chasing show under a canopy. Only the trees' own materials carry it (a bush hides sheep on purpose,
+// and a log or stump is too low to matter); their shadows are kept whole. U.seeK is 0 outside the play view
+const seeKeep=Fn(()=>{const d=positionWorld.sub(U.seeC).normalize(),
+ hit=U.seeC.add(d.mul(U.seeT.y.sub(U.seeC.y).div(d.y.min(-.02)))),
+ a=smoothstep(.15,1.4,positionWorld.y.sub(U.seeT.y)).mul(smoothstep(U.seeR.mul(.5),U.seeR,hit.sub(U.seeT).xz.length()).oneMinus()).mul(U.seeK).mul(.92),
+ n=Fract(Fract(dot(screenCoordinate,vec2(.06711056,.00583715))).mul(52.9829189));return n.greaterThanEqual(a)}),
+VWT=new BotwMat({vertexColors:true,roughness:.85},{...VWF.k,key:'vegFt'}),
+VLT=new BotwMat({vertexColors:true,map:VL.map,alphaTest:.45,side:THREE.DoubleSide,roughness:.9},{...VL.k,key:'leafT'}),
+VBT=new BotwMat({vertexColors:true,map:VB.map,alphaTest:.5,side:THREE.DoubleSide,roughness:.9},{...VB.k,key:'leafT'});
+VWT.positionNode=VWF.positionNode;VWT.normalNode=VWF.normalNode;VWT.roughnessNode=VWF.roughnessNode;VWT.maskNode=seeKeep();VWT.maskShadowNode=float(1).greaterThan(0);
+for(const m of[VLT,VBT]){m.positionNode=VL.positionNode;m.maskShadowNode=VL.maskNode;m.maskNode=VL.maskNode.and(seeKeep())}
 // loose foliage: n leaf cards (flower cards in col) through the volume of S's foliage primitives (material 2) as noi roughens them, in
 // place of a solid crown. Thickest toward the outside (a card's odds fall away over the half metre in, flowers' over the outer 15cm), so
 // the crown keeps its shape and the wood shows through its heart; each faces out along the field's slope, darker the deeper it sits
@@ -1131,7 +1144,7 @@ function mkC(cx,cz){const k=cx+','+cz,ox=cx*CS,oz=cz*CS,g=new THREE.PlaneGeometr
   else if(gcr()<.05){const a=gcr()*TAU,d=2.6+gcr()*2;stumpAt(gcr()<.5?0:1,q[0]+cos(a)*d,q[2]+sin(a)*d,.8+gcr()*.35)}}});
  const itm=[],addI=(g,ma,a,cs)=>a.length&&itm.push(plItem(g,ma,a,cs)),addM=(g,ma,M,cs)=>M.length&&itm.push(plItemM(g,ma,M,cs));
  addI(BGL,VL,A[1]);addI(BGL,VL,A[7]);addI(RK,VW,A[3],1);addI(FLW,FLM,A[4]);
- SPC.forEach(([g,l,,b],k)=>{addI(g,VWF,T[k],1);l&&addI(l,VL,T[k],1);b&&addI(b,VB,T[k])});
+ SPC.forEach(([g,l,,b],k)=>{addI(g,VWT,T[k],1);l&&addI(l,VLT,T[k],1);b&&addI(b,VBT,T[k])});
  WS.forEach((M,k)=>addM(WALLS[k],VW,M,!mob));HG.forEach((a,k)=>{addI(HEDGEL[k],VL,a,!mob);k&&addI(HDFB,VB,a)});
  addI(GRSL,VL,GO,!mob);addI(GRSB,VB,GO);addI(PIER,VC,PR,1);if(GT.length){const it=plItem(FGT,VC,GT,1);itm.push(it);gts.forEach(gr=>gr.it=it)}addI(BAL,HYM,BL,1);RU.forEach((a,k)=>addM(RUINS[k],VW,a,1));
  addI(BYRE,VW,PX.byre,1);addI(CART,VC,PX.cart,1);addI(CHURCH,VW,PX.church,1);PX.st.forEach((a,k)=>addI(GSTONE[k],VW,a,1));
@@ -1390,7 +1403,7 @@ hay.position.set(-4.8,0,-2.6);const HB=Cy(.75,.75,1.3,16),HMm=THM(0xfff3d6);[[-.
 shed.position.set(0,0,5.4);part(mg([...[[-2.3,-1.4],[2.3,-1.4],[-2.3,1.4],[2.3,1.4]].map(([x,z])=>[Cy(.13,.13,z>0?3.2:2.7,16).translate(x,z>0?1.6:1.35,z),0x6b4a2b]),[B(5.6,.14,3.9).rotateX(-.13).translate(0,2.97,0),0xa8442f],...[...Array(12)].map((_,i)=>[B(.14,.07,3.92).rotateX(-.13).translate(-2.55+i*.465,3.05,0),0x94392a]),...[...Array(9)].map((_,i)=>[B(.5,2.55,.1).translate(-2.2+i*.55,1.3,-1.5),[0x7a5534,0x6b4a2b,0x86603c][i%3]]),[B(5,.12,.14).translate(0,2.55,-1.44),0x5e3f22]]),VC,0,0,0,shed);part(Cy(1,1,.04,20).scale(2.2,1,1.3),THM(0xfff0cc),0,.03,0,shed);
 {const gb=[[-13.5,1,-27,1.75,0,1.35,0,0x9fbf9a],[-28,1,-12.5,1.75,1,1.35,0,0x9fbf9a]];gar.add(IM(BGL,VL,gb,1))}
 // a round-crowned tree beside the cottage's left gable; its crown spreads ~5.4m, so the trunk stands ~7m clear of the gable
-{const tt=[[...cw(-12.6,-4.2)].flatMap((v,i)=>i?[-.2,v]:[v]).concat([1.45,.6])];farm.add(IM(TRA,VWF,tt,1),IM(TAL,VL,tt,1))}
+{const tt=[[...cw(-12.6,-4.2)].flatMap((v,i)=>i?[-.2,v]:[v]).concat([1.45,.6])];farm.add(IM(TRA,VWT,tt,1),IM(TAL,VLT,tt,1))}
 const LGS=new THREE.Sprite(new THREE.SpriteNodeMaterial({map:DOT,color:0xffc45e,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.7,fog:false}));LGS.scale.setScalar(2.4);LGS.position.set(-2.35,2.75,3.55);cot.add(LGS);
 // farm collider: cottage body, water barrel, turf stack, plus whichever upgrades are built
 const farmCol=()=>{const c=[B(11,4.3,6).rotateY(PI/4).translate(-21,2.15,-20),Cy(.62,.62,1.6,10).translate(...(([x,z])=>[x,.8,z])(cw(6.1,2.2))),B(3.3,1.2,1.4).rotateY(PI/4).translate(...(([x,z])=>[x,.6,z])(cw(7.6,-2.2))),B(2.2,1,.6).rotateY(PI/4).translate(...(([x,z])=>[x,.5,z])(cw(-3.8,3.42))),B(4.95,1.2,.8).rotateY(-atan2(.8,4.8)).translate(-4.8,.6,6.12).rotateY(PI/4).translate(-21,0,-20),B(7.3,1.2,.8).rotateY(-atan2(-.8,7.2)).translate(3.6,.6,6.12).rotateY(PI/4).translate(-21,0,-20),Cy(.96,1.08,7,8).translate(...(([x,z])=>[x,2.5,z])(cw(-12.6,-4.2)))];
@@ -2279,7 +2292,7 @@ function wv(dt){const p=P.position,pa=PS.p,ca=PS.c,wdv=U.wd.value,ws=.35+.7*wx.w
  if(fen){const o=hypot(p.x-fen.gx,p.z-fen.gz)<8||hypot(p.x,p.z)<fen.r||fol>0&&hypot(p.x,p.z)<fen.r+14;fen.go+=((o?1:0)-fen.go)*min(1,dt*3);fen.gt.rotation.y=-fen.ga+fen.go*1.45}
  LGS.visible=LT>.01;LGS.material.opacity=(.62+sin(tm*9)*.07+sin(tm*23.7)*.05)*LT}
 // the cottage menu's view: a three-quarter look at the front from a little right of centre (CZD, from the cottage toward the camera)
-const CZC=V(-21,4.6,-20),CZD=V(.901,0,.434);let czK=0,camM=0;
+const CZC=V(-21,4.6,-20),CZD=V(.901,0,.434);let czK=0,camM=0,seeK=0;
 function camU(dt){ZM+=(ZMt-ZM)*min(1,dt*6);const p=P.position,pit=.48+.36*cl((ZM-38)/62,0,1);CO.set(cos(pit)*.7071,sin(pit),cos(pit)*.7071);czK+=((run&&ov==3?1:0)-czK)*min(1,dt*4);
  // switching views (play, the cottage menu, the shepherd tab): a camera more than 80m from its new spot cuts straight there rather
  // than dragging across the map (a short hop, the shepherd already about the farm, still glides). cmP moves the camera to tv, cmL the
@@ -2292,7 +2305,9 @@ function camU(dt){ZM+=(ZMt-ZM)*min(1,dt*6);const p=P.position,pit=.48+.36*cl((ZM
  else if(m){// far enough back that the cottage fits the clear part of the screen, aimed off-centre so it sits in the middle of it
   const t=Math.tan(cam.fov*PI/360),a=cam.aspect,d=max(28,17/(2*t*a*czF.w),14/(2*t*czF.h)),ox=czF.x*d*t*a,oy=czF.y*d*t;
   tv.set(CZC.x+CZD.x*d*.966,CZC.y+d*.26,CZC.z+CZD.z*d*.966);cmP(3);tv.set(CZC.x-CZD.z*ox,CZC.y-oy,CZC.z+CZD.x*ox);cmL(4)}
- else if(run){tv.copy(p).addScaledVector(CO,ZM*.675);cmP(3);{const g=max(H(cam.position.x,cam.position.z),WL)+2.5,mx=(cam.position.x+p.x)/2,mz=(cam.position.z+p.z)/2,gm=max(H(mx,mz),WL)+2,my=(cam.position.y+p.y)/2;if(cam.position.y<g)cam.position.y=g;if(my<gm)cam.position.y+=(gm-my)*2}tv.set(p.x,p.y+1.5,p.z);cmL(6)}else{const a=tm*.05;cam.position.set(cos(a)*78,50,sin(a)*78)}cam.lookAt(LK);cam.updateMatrixWorld();SKM.position.copy(cam.position);U.focus.value=cam.position.distanceTo(LK)+18*(1-czK);U.tsW.value=.1+.26*czK}
+ else if(run){tv.copy(p).addScaledVector(CO,ZM*.675);cmP(3);{const g=max(H(cam.position.x,cam.position.z),WL)+2.5,mx=(cam.position.x+p.x)/2,mz=(cam.position.z+p.z)/2,gm=max(H(mx,mz),WL)+2,my=(cam.position.y+p.y)/2;if(cam.position.y<g)cam.position.y=g;if(my<gm)cam.position.y+=(gm-my)*2}tv.set(p.x,p.y+1.5,p.z);cmL(6)}else{const a=tm*.05;cam.position.set(cos(a)*78,50,sin(a)*78)}cam.lookAt(LK);cam.updateMatrixWorld();SKM.position.copy(cam.position);U.focus.value=cam.position.distanceTo(LK)+18*(1-czK);U.tsW.value=.1+.26*czK;
+ // the trees thin out over the ground round the shepherd (seeKeep): a disc 12.6% as wide as the camera is far from him, off in the menus
+ seeK+=((run&&!m?1:0)-seeK)*min(1,dt*4);U.seeK.value=seeK;U.seeC.value.copy(cam.position);U.seeT.value.set(p.x,p.y+.8,p.z);U.seeR.value=cl(cam.position.distanceTo(P.position)*.126,4.1,8.6)}
 // every frame, paused or not, after camU: the grass field, the sun's shadow box, the lake and the far terrain ring gather round where
 // the camera is looking (8m past the look point), so they follow it to the cottage menu however far off the shepherd was left
 function vwU(){const fx=LK.x-cam.position.x,fz=LK.z-cam.position.z,fl=hypot(fx,fz)||1,ux=LK.x+fx/fl*8,uz=LK.z+fz/fl*8;U.gF.value.set(ux,uz);gcUpd(ux,uz);
